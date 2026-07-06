@@ -1,0 +1,2181 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BP Dashboard — SOCAR Upstream OM HR Sistemi</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif}
+:root{--dark:#1B3A4B;--mid:#1E6091;--green:#2E7D32;--lgreen:#E8F5E9;--lblue:#E3F2FD;--lyellow:#FFF9C4;--lorange:#FFF3E0;--lred:#FFEBEE;--lgray:#F5F5F5;--white:#fff;--gray:#455A64;--red:#C62828;--amber:#F57F17;--purple:#6A1B9A;--border:#E0E0E0;--teal:#00695C}
+body{background:#F0F2F5;color:var(--gray);font-size:13px}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:215px;background:var(--dark);color:#fff;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar-logo{padding:14px 14px 10px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo h1{font-size:13px;font-weight:700;color:#fff;line-height:1.3}
+.sidebar-logo p{font-size:10px;color:rgba(255,255,255,.45);margin-top:3px}
+.nav-section{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);padding:12px 14px 4px;text-transform:uppercase;letter-spacing:.08em}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:12px;cursor:pointer;color:rgba(255,255,255,.7);border-left:3px solid transparent;transition:all .15s}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.active{background:rgba(255,255,255,.13);color:#fff;border-left-color:#64B5F6}
+.nav-item .icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:#E53935;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:9px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar h2{font-size:15px;font-weight:600;color:var(--dark)}
+.topbar-right{display:flex;gap:8px;align-items:center}
+.content{flex:1;overflow-y:auto;padding:16px 20px}
+.btn{font-size:12px;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:#fff;color:var(--gray);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+.btn:hover{background:var(--lgray)}
+.btn-primary{background:var(--mid);color:#fff;border-color:var(--mid)}
+.btn-primary:hover{background:#1557a0}
+.btn-danger{color:var(--red);border-color:#FFCDD2}
+.btn-danger:hover{background:var(--lred)}
+.btn-export{background:#217346;color:#fff;border-color:#217346}
+.btn-sm{padding:3px 8px;font-size:11px}
+.search-box{font-size:12px;padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:#F9F9F9;color:var(--gray);width:200px;outline:none}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:8px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;border-left:4px solid var(--mid);cursor:pointer;transition:all .15s}
+.kpi:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);transform:translateY(-1px)}
+.kpi.green{border-left-color:var(--green)}.kpi.amber{border-left-color:#F9A825}.kpi.red{border-left-color:var(--red)}.kpi.purple{border-left-color:var(--purple)}.kpi.teal{border-left-color:var(--teal)}
+.kpi-label{font-size:10px;color:#90A4AE;margin-bottom:5px;font-weight:500}
+.kpi-val{font-size:24px;font-weight:700;color:var(--dark);line-height:1}
+.alert{border-radius:8px;padding:10px 14px;margin-bottom:10px;display:flex;gap:10px;border:1px solid}
+.alert-red{background:var(--lred);border-color:#FFCDD2;color:var(--red)}
+.alert-amber{background:var(--lyellow);border-color:#FFE082;color:#6D4C00}
+.alert-blue{background:var(--lblue);border-color:#BBDEFB;color:#0D47A1}
+.alert-title{font-size:12px;font-weight:600}.alert-desc{font-size:11px;margin-top:2px;opacity:.85}
+.card{background:#fff;border:1px solid var(--border);border-radius:10px;margin-bottom:12px}
+.card-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;color:var(--dark)}
+.card-body{padding:14px}
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:auto;margin-bottom:12px}
+.tbl{width:100%;border-collapse:collapse;min-width:600px}
+.tbl th{font-size:11px;font-weight:600;color:#78909C;text-align:left;padding:8px 12px;background:#F8F9FA;border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl td{font-size:12px;padding:8px 12px;border-bottom:1px solid #F5F5F5;vertical-align:middle;color:var(--gray)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr.clickable:hover td{background:#F0F7FF;cursor:pointer}
+.tbl tr.crit td{background:#FFF5F5}
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.pill-green{background:var(--lgreen);color:#1B5E20}.pill-blue{background:var(--lblue);color:#0D47A1}
+.pill-amber{background:var(--lyellow);color:#6D4C00}.pill-red{background:var(--lred);color:var(--red)}
+.pill-purple{background:#F3E5F5;color:var(--purple)}.pill-orange{background:var(--lorange);color:#BF360C}
+.pill-gray{background:var(--lgray);color:#607D8B}.pill-dark{background:#E8EAF6;color:#1A237E}
+.pill-teal{background:#E0F2F1;color:var(--teal)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.filters select,.filters input[type=text]{font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:#fff;height:30px;outline:none}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-lg{max-width:860px}
+.modal-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.modal-title{font-size:15px;font-weight:600;color:var(--dark)}
+.modal-body{padding:18px 20px}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:#fff}
+.form-group{margin-bottom:11px}
+.form-label{display:block;font-size:11px;font-weight:600;color:#546E7A;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.form-control{width:100%;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;color:var(--gray);outline:none;background:#fff}
+.form-control:focus{border-color:var(--mid)}
+textarea.form-control{resize:vertical;min-height:60px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.progress{background:#E0E0E0;border-radius:20px;height:6px;overflow:hidden}
+.progress-bar{height:100%;border-radius:20px}
+.tabs{display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:14px;overflow-x:auto}
+.tab{padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;color:#90A4AE;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.tab:hover{color:var(--mid)}.tab.active{color:var(--mid);border-bottom-color:var(--mid);font-weight:600}
+.page{display:none}.page.active{display:block}
+.mini-dash{background:#fff;border-bottom:1px solid var(--border);padding:7px 20px;display:flex;gap:8px;align-items:center;flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.mini-dash::-webkit-scrollbar{display:none}
+
+/* Mini Dashboard bar */
+.mini-dash{background:#fff;border-bottom:1px solid var(--border);padding:8px 20px;display:flex;gap:10px;align-items:center;flex-shrink:0;overflow-x:auto}
+.mini-kpi{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;background:#F8F9FA;border:1px solid var(--border);white-space:nowrap;cursor:pointer;transition:all .15s}
+.mini-kpi:hover{background:var(--lblue);border-color:#90CAF9}
+.mini-kpi-icon{font-size:13px}
+.mini-kpi-val{font-size:14px;font-weight:700;color:var(--dark)}
+.mini-kpi-label{font-size:10px;color:#90A4AE}
+.mini-sep{width:1px;height:24px;background:var(--border);flex-shrink:0}
+/* Page action bar */
+.page-actions{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.page-actions-left{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.page-actions-right{display:flex;gap:8px;align-items:center}
+
+.detail-panel{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.detail-title{font-size:15px;font-weight:700;color:var(--dark);margin-bottom:3px}
+.detail-sub{font-size:12px;color:#90A4AE;margin-bottom:12px}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:9px;margin-bottom:12px}
+.detail-field{background:#F8F9FA;border-radius:8px;padding:8px 10px}
+.detail-field-label{font-size:10px;font-weight:600;color:#90A4AE;text-transform:uppercase;margin-bottom:3px}
+.detail-field-val{font-size:12px;color:#37474F;font-weight:500}
+.section-box{background:#F8F9FA;border-radius:8px;padding:10px 12px;margin-bottom:10px}
+.section-box-title{font-size:11px;font-weight:700;color:var(--dark);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.stage-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #F5F5F5;align-items:flex-start}
+.stage-item:last-child{border-bottom:none}
+.stage-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;color:#fff}
+.stage-dot.done{background:var(--green)}.stage-dot.active{background:var(--mid)}.stage-dot.pending{background:#CFD8DC;color:#607D8B}
+.log-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #F5F5F5}
+.log-item:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="sidebar">
+  <div class="sidebar-logo"><h1>BP Dashboard</h1><p>SOCAR Upstream OM HR Sistemi</p></div>
+  <div class="nav-section">Əsas</div>
+  <div class="nav-item active" onclick="goPage('dashboard')"><span class="icon">📊</span><span>Dashboard</span></div>
+  <div class="nav-section">İşə Qəbul</div>
+  <div class="nav-item" onclick="goPage('pipeline')"><span class="icon">👥</span><span>Namizəd Pipeline</span><span class="nav-badge" id="nb-pipeline">0</span></div>
+  <div class="nav-item" onclick="goPage('vacancies')"><span class="icon">📋</span><span>Vakansiyalar</span></div>
+  <div class="nav-section">İdarəetmə</div>
+  <div class="nav-item" onclick="goPage('tasks')"><span class="icon">✅</span><span>Task İzləmə</span><span class="nav-badge" id="nb-tasks">0</span></div>
+  <div class="nav-item" onclick="goPage('onboarding')"><span class="icon">🎯</span><span>Onboarding</span></div>
+  <div class="nav-item" onclick="goPage('transfer')"><span class="icon">🔄</span><span>Transfer İdarəetmə</span><span class="nav-badge" id="nb-transfer">0</span></div>
+  <div class="nav-section">Layihələr</div>
+  <div class="nav-item" onclick="goPage('projects')"><span class="icon">🗂️</span><span>Layihələr</span></div>
+  <div class="nav-section">Hesabat</div>
+  <div class="nav-item" onclick="goPage('kurators')"><span class="icon">📈</span><span>Kurator Perf.</span></div>
+  <div class="nav-item" onclick="goPage('funksiyalar')"><span class="icon">🏢</span><span>Funksiya/İdarə</span></div>
+</div>
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:8px">
+      <h2 id="page-title">Dashboard</h2>
+      <span id="save-indicator" style="font-size:10px;color:#2E7D32;opacity:0;transition:opacity .5s">✓ Yadda saxlandı</span>
+    </div>
+    <div class="topbar-right">
+      <input type="text" class="search-box" placeholder="🔍 Axtar..." oninput="globalSearch(this.value)">
+      <button class="btn" onclick="refreshFromSupabase()" title="Yenilə" style="padding:6px 10px">🔄</button>
+      <button class="btn btn-export" onclick="exportExcel()">⬇ Excel</button>
+      <button class="btn" onclick="openImportModal()" style="background:#7B1FA2;color:#fff;border-color:#7B1FA2">📥 Data Yüklə</button>
+      <button class="btn btn-primary" id="add-btn" onclick="openAddModal()" style="display:none">+ Əlavə et</button>
+    </div>
+  </div>
+  <div class="mini-dash" id="mini-dash"></div>
+  <div class="mini-dash" id="mini-dash"></div>
+  <div class="content">
+    <div class="page active" id="page-dashboard">
+      <div id="dash-alerts"></div>
+      <div class="kpi-grid" id="dash-kpis"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><div style="font-size:13px;font-weight:600;margin-bottom:8px">🔴 Kritik Proseslər</div>
+          <div class="table-wrap"><table class="tbl"><thead><tr><th>Ad</th><th>Status</th><th>Kurator</th><th>Gün</th></tr></thead><tbody id="dash-critical"></tbody></table></div></div>
+        <div><div style="font-size:13px;font-weight:600;margin-bottom:8px">📋 Son Fəaliyyətlər</div>
+          <div class="card"><div class="card-body" id="dash-activity" style="padding:8px"></div></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+        <div><div style="font-size:13px;font-weight:600;margin-bottom:8px">Pipeline vəziyyəti</div><div class="card"><div class="card-body" id="dash-pipeline-chart"></div></div></div>
+        <div><div style="font-size:13px;font-weight:600;margin-bottom:8px">Task mövzuları</div><div class="card"><div class="card-body" id="dash-task-chart"></div></div></div>
+      </div>
+    </div>
+    <div class="page" id="page-pipeline">
+      <div class="filters" id="pipeline-filters"></div>
+      <div id="pipeline-detail" style="display:none"></div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+        <span style="font-size:11px;color:#90A4AE">Namizəd pipeline mərhələləri:</span>
+        <button class="btn btn-sm" onclick="managePipelineStages()">⚙ Mərhələləri idarə et</button>
+      </div>
+      <div class="table-wrap" id="pipeline-table-wrap" style="overflow-x:auto">
+        <table class="tbl"><thead><tr><th>Ad Soyad</th><th>Vəzifə</th><th>Funksiya</th><th>Kurator</th><th>Məsul</th><th>HRBP→İQ</th><th>İQ→Müs.</th><th>Müs.→ƏH</th><th>ƏH→BaşOf.</th><th>Status</th><th>Cəmi</th><th style="width:80px"></th></tr></thead><tbody id="pipeline-tbody"></tbody></table>
+      </div>
+    </div>
+    <div class="page" id="page-vacancies">
+      <div class="filters" id="vacancy-filters"></div>
+      <div id="vacancy-detail" style="display:none"></div>
+      <div class="table-wrap" id="vacancy-table-wrap">
+        <table class="tbl"><thead><tr><th>Vəzifə</th><th>Funksiya</th><th>İdarə</th><th>Tələb edən</th><th>HRBP</th><th>Dövr</th><th>Status</th><th>Deadline</th><th>Gün</th><th></th></tr></thead><tbody id="vacancies-tbody"></tbody></table>
+      </div>
+    </div>
+    <div class="page" id="page-tasks">
+      <div class="filters" id="task-filters"></div>
+      <div id="task-detail" style="display:none"></div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+        <span style="font-size:11px;color:#90A4AE">Mövzu, status, prioritet:</span>
+        <button class="btn btn-sm" onclick="manageTaskFilters()">⚙ Filter siyahılarını idarə et</button>
+      </div>
+      <div class="table-wrap" id="task-table-wrap" style="overflow-x:auto">
+        <table class="tbl"><thead><tr><th>Mövzu</th><th>Tapşırıq</th><th>Kimdən</th><th>İdarə</th><th>F.Rəhbər</th><th>Kurator</th><th>Məsul</th><th>Prioritet</th><th>Status</th><th>Gün</th><th>Layihə</th><th style="width:80px"></th></tr></thead><tbody id="tasks-tbody"></tbody></table>
+      </div>
+    </div>
+    <div class="page" id="page-onboarding">
+      <div class="filters"><button class="btn btn-primary" onclick="openOnboardingModal()">+ Əlavə et</button><button class="btn" onclick="editObStages()">⚙ Mərhələlər</button></div>
+      <div class="table-wrap" style="overflow-x:auto"><table class="tbl"><thead id="ob-thead"></thead><tbody id="ob-tbody"></tbody></table></div>
+    </div>
+    <div class="page" id="page-transfer">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTrTab('list',this)">📋 Transfer Siyahısı</div>
+        <div class="tab" onclick="switchTrTab('dashboard',this)">📊 Transfer Dashboard</div>
+        <div class="tab" onclick="switchTrTab('workflow',this)">⚙ Workflow Mərhələləri</div>
+      </div>
+      <div id="tr-tab-list">
+        <div class="filters" id="transfer-filters"></div>
+        <div id="transfer-detail" style="display:none"></div>
+        <div id="transfer-list-wrap">
+          <div class="table-wrap" style="overflow-x:auto">
+            <table class="tbl"><thead><tr>
+              <th>Ad Soyad</th><th>Müraciət növü</th><th>Funksiya</th><th>Cari kat.</th><th>Plan kat.</th>
+              <th>1.Müraciət→HRBP</th><th>2.HRBP→Funk.rəh.</th><th>3.Funk.rəh.→ƏH</th><th>4.ƏH→BaşOfis</th>
+              <th>5.BaşOfis→SecChk</th><th>6.SecChk→PEP</th><th>7.PEP→Müqavilə</th><th>8.Müq.→İşəBaş.</th>
+              <th>Cari mərhələ</th><th>Status</th><th>Kurator</th><th>Deadline</th><th>Cəmi gün</th><th style="width:80px"></th>
+            </tr></thead><tbody id="transfer-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+      <div id="tr-tab-dashboard" style="display:none">
+        <div class="kpi-grid" id="tr-kpi-grid"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px">
+          <div><div style="font-size:13px;font-weight:600;margin-bottom:8px">Funksiya üzrə</div><div class="card"><div class="card-body" id="tr-funk-chart"></div></div></div>
+          <div><div style="font-size:13px;font-weight:600;margin-bottom:8px">Status üzrə</div><div class="card"><div class="card-body" id="tr-status-chart"></div></div></div>
+        </div>
+        <div style="margin-top:12px"><div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:8px">⚠ Gecikmiş Transferlər</div>
+          <div class="table-wrap"><table class="tbl"><thead><tr><th>Ad Soyad</th><th>Cari mərhələ</th><th>Deadline</th><th>Gecikən gün</th><th>Kurator</th></tr></thead><tbody id="tr-late-tbody"></tbody></table></div>
+        </div>
+      </div>
+      <div id="tr-tab-workflow" style="display:none">
+        <div style="display:flex;gap:10px;margin-bottom:12px">
+          <button class="btn btn-primary" onclick="addWfStage()">+ Mərhələ əlavə et</button>
+          <span style="font-size:11px;color:#90A4AE;align-self:center">Mərhələləri düzəliş etmək, sıralamaq, silmək mümkündür</span>
+        </div>
+        <div id="wf-stages-list"></div>
+      </div>
+    </div>
+    <div class="page" id="page-projects">
+      <div style="margin-bottom:12px"><button class="btn btn-primary" onclick="openProjectModal()">+ Layihə əlavə et</button></div>
+      <div id="projects-list"></div>
+    </div>
+    <div class="page" id="page-kurators">
+      <div id="kurator-detail" style="display:none"></div>
+      <div id="kurator-overview">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px" id="kurator-cards"></div>
+        <div class="table-wrap"><table class="tbl"><thead><tr><th>Kurator</th><th>Ümumi</th><th>Tamamlandı</th><th>Açıq</th><th>Gecikən</th><th>Yük %</th><th></th></tr></thead><tbody id="kurator-tbody"></tbody></table></div>
+      </div>
+    </div>
+    <div class="page" id="page-funksiyalar">
+      <div class="tabs" id="funk-tabs"></div>
+      <div id="funk-content"></div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="modal-overlay" id="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header"><span class="modal-title" id="modal-title">Yeni</span><button class="btn btn-sm" onclick="closeModal()">✕</button></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Ləğv et</button><button class="btn btn-primary" id="modal-save-btn">Yadda saxla</button></div>
+  </div>
+</div>
+<script>
+const FUNKS=["Transformasiya team","Business Excellence","Communications","Sosial","Hüquq","MRİ","İT","HSE","Subsurface","Drilling & Well Operations","Construction Projects","Finance","Process Safety-Integrated","Risk","Supply Chain","Transportation Management","Digər"];
+const IDARELER=["1 saylı İNMXTİ","2 saylı İNMXTİ","Dalğıc Xidməti","Dalma","Qaz anbarları","MTTİ","Nərimanneft NQÇİ","SUOM","Azneft İB","Digər"];
+const KURATORLAR=["Tunzalə Nemətzadə (Şöbə rəisi)","Heydər Əhmədli","Nigar Əsədullayeva","Gülsüm Tağıyeva","Əfsanə Qəhrəmanlı","Nərmin Bağırova","Pərvanə Əkbərova","GİP-lərim","Digər"];
+const MESUL=["Nigar Əsədullayeva","Tunzalə Nemətzadə","Heydər Əhmədli","Əfsanə Qəhrəmanlı","Nərmin Bağırova","Pərvanə Əkbərova","Gülsüm Tağıyeva","Digər"];
+const LAYIHELER=["—","Layihə 1 — Azneft İB–SUOM İnterim Structure","Layihə 2 — Azneft İB Employee Transition to SUOM","Layihə 4 — Transport Department Carve-out","Layihə 5 — Performansın İdarəedilməsi Sistemi","Layihə 6 — Təşkilati Sağlamlaşdırma Prosesi","Layihə 7 — Dalma Qurğuları LLC Establishment","Layihə 10 — Qaz Anbarları İdarəsinin Azneft İB-dən ayrılması","Təchiz müqavilələri"];
+const MOVZULAR=["İşə qəbul","Performans","TSP","Onboarding","Əməliyyat","Layihə","Təşkilati","Təlim","Transfer","Digər"];
+const ST_TASK=["Açıq","Davam edir","Tamamlandı","Blok","Ləğv edildi"];
+const ST_PIPE=["CV Göndərildi","Müsahibə Planlanır","Müsahibə","Müsahibə — Uğurlu","Qiymətləndirmə","Security Check — Sənəd","Security Check — Yoxlama","Security Check — Nəticə","Salary Negotiation","Offer","PEP — Forma","PEP — Rəhbər imzası","PEP — Baş Ofis","İşə Başladı","Blok — Ştat Yox","Rədd","Immigration","İşə Qəbul Prosesi","Preferred candidate"];
+const ST_VAC=["Aktiv","Aktiv — Elan Gedib","LinkedIn-də","Müsahibə Planlanır","Müsahibə — Uğurlu","Security Check","Salary Negotiation","Preferred candidate","Blok — Ştat Yox","Tamamlandı"];
+const PRIOR=["Kritik","Yüksək","Orta","Aşağı"];
+const TR_MUR=["Azneft İB → SUOM","SUOM daxili","SOCAR HO → SUOM","Digər SOCAR → SUOM","Xarici şirkət → SUOM"];
+const TR_KAT=["Specialist","Böyük mütəxəssis","Baş mütəxəssis","Qrup rəhbəri","Departament rəhbəri","Menecer","Baş menecer","Funksiya rəhbəri","Direktor","Digər"];
+const TR_ST=["Gözləyir","Davam edir","Security Check-də","PEP-də","Baş Ofis Təsdiqində","Müqavilə Gözləyir","İşə Başladı","Tamamlandı","Rədd edildi","Blok"];
+const DEFAULT_WF=["Transfer müraciəti yaradıldı","HRBP baxışı","Funksiya rəhbərinin razılığı","Əmək haqqı razılaşdırılması","Baş Ofis razılığı","Security Check","PEP Check","Müqavilənin hazırlanması","Müqavilənin imzalanması","Access açılması","Laptop / Email","Onboarding","İşə başladı","Tamamlandı"];
+
+// ══ SUPABASE CONFIG ══════════════════════════════════
+const SB_URL = 'https://pwpsnnsanyllmzyruous.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3cHNubnNhbnlsbG16eXJ1b3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNTI0MjAsImV4cCI6MjA5ODkyODQyMH0.Tj8J6QBWygQ2VSITth5WWPfQDXHwPQuN1atn0RJ6UzY';
+
+async function sbGet(table){
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/${table}?select=*&order=id.asc`,{
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}
+    });
+    if(!r.ok) return null;
+    const rows = await r.json();
+    return rows.map(row=>row.data);
+  }catch(e){console.error('sbGet error',table,e);return null;}
+}
+
+async function sbSave(table, items){
+  try{
+    // Delete all then insert (simple upsert)
+    await fetch(`${SB_URL}/rest/v1/${table}`,{
+      method:'DELETE',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'}
+    });
+    if(!items||!items.length) return;
+    const rows = items.map(item=>({'data':item}));
+    await fetch(`${SB_URL}/rest/v1/${table}`,{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify(rows)
+    });
+  }catch(e){console.error('sbSave error',table,e);}
+}
+
+async function sbGetSetting(key, def){
+  try{
+    const r = await fetch(`${SB_URL}/rest/v1/settings?key=eq.${key}&select=value`,{
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+    });
+    const rows = await r.json();
+    if(rows&&rows.length) return rows[0].value;
+    return def;
+  }catch(e){return def;}
+}
+
+async function sbSetSetting(key, value){
+  try{
+    await fetch(`${SB_URL}/rest/v1/settings`,{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify({key,value})
+    });
+  }catch(e){console.error('sbSetSetting error',e);}
+}
+
+// Loading overlay
+function showLoading(msg='Yüklənir...'){
+  let el=document.getElementById('sb-loading');
+  if(!el){el=document.createElement('div');el.id='sb-loading';el.style.cssText='position:fixed;inset:0;background:rgba(27,58,75,.85);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:14px;gap:12px';el.innerHTML=`<div style="width:36px;height:36px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite"></div><div id="sb-loading-msg">${msg}</div>`;document.head.insertAdjacentHTML('beforeend','<style>@keyframes spin{to{transform:rotate(360deg)}}</style>');document.body.appendChild(el);}
+  else{document.getElementById('sb-loading-msg').textContent=msg;el.style.display='flex';}
+}
+function hideLoading(){const el=document.getElementById('sb-loading');if(el)el.style.display='none';}
+
+// localStorage fallback (for settings only)
+function ld(k,d){try{const x=localStorage.getItem(k);return x?JSON.parse(x):d;}catch(e){return d;}}
+function sd(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+// Save all to Supabase
+let _saveTimer=null;
+function saveAll(){
+  // Debounce — wait 800ms after last change
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(async()=>{
+    await sbSave('candidates',candidates);
+    await sbSave('tasks',tasks);
+    await sbSave('vacancies',vacancies);
+    await sbSave('onboardings',onboardings);
+    await sbSave('transfers',transfers);
+    await sbSave('projects',projects);
+    await sbSave('audit_log',auditLog.slice(0,100));
+    // Save settings
+    await sbSetSetting('obStages',obStages);
+    await sbSetSetting('workflowStages',workflowStages);
+    await sbSetSetting('projectStageStatuses',projectStageStatuses);
+    await sbSetSetting('customMovzular',customMovzular);
+    await sbSetSetting('customStatuses',customStatuses);
+    await sbSetSetting('customPrior',customPrior);
+    await sbSetSetting('vacStatusList',vacStatusList);
+    // Show saved indicator
+    const ind=document.getElementById('save-indicator');
+    if(ind){ind.style.opacity='1';setTimeout(()=>ind.style.opacity='0',2000);}
+  },800);
+}
+
+// Load all from Supabase on startup
+async function loadAllFromSupabase(){
+  showLoading('BP Dashboard yüklənir...');
+  try{
+    const [c,t,v,o,tr,p,al] = await Promise.all([
+      sbGet('candidates'),sbGet('tasks'),sbGet('vacancies'),
+      sbGet('onboardings'),sbGet('transfers'),sbGet('projects'),sbGet('audit_log')
+    ]);
+    if(c&&c.length) candidates=c;
+    if(t&&t.length) tasks=t;
+    if(v&&v.length) vacancies=v;
+    if(o&&o.length) onboardings=o;
+    if(tr&&tr.length) transfers=tr;
+    if(p&&p.length) projects=p;
+    if(al&&al.length) auditLog=al;
+    // Load settings
+    const [obs,wfs,pss,cm,cs,cp,vs] = await Promise.all([
+      sbGetSetting('obStages',null),
+      sbGetSetting('workflowStages',null),
+      sbGetSetting('projectStageStatuses',null),
+      sbGetSetting('customMovzular',null),
+      sbGetSetting('customStatuses',null),
+      sbGetSetting('customPrior',null),
+      sbGetSetting('vacStatusList',null),
+    ]);
+    if(obs) obStages=obs;
+    if(wfs) workflowStages=wfs;
+    if(pss) projectStageStatuses=pss;
+    if(cm){customMovzular=cm;window.MOVZULAR=cm;}
+    if(cs){customStatuses=cs;window.ST_TASK=cs;}
+    if(cp){customPrior=cp;window.PRIOR=cp;}
+    if(vs){vacStatusList=vs;window.ST_VAC=vs;}
+  }catch(e){
+    console.error('Load error',e);
+  }
+  hideLoading();
+}
+
+let candidates=[
+  {id:1,ad:"Qahir Bəylərov",vezife:"Quyu təmiri qrup rəhbəri",funksiya:"Drilling & Well Operations",idarə:"Azneft İB",kurator:"Tunzalə Nemətzadə (Şöbə rəisi)",mesul:"Nigar Əsədullayeva",status:"İşə Başladı",hrbpDate:"2026-01-10",iqDate:"2026-01-12",musibaheDate:"2026-01-15",ehDate:"2026-01-20",basofisDate:"2026-01-28",secSenedDate:"",secYoxlamaDate:"",secNeticeDate:"",pepFormaDate:"",pepRehberDate:"",pepBasoDate:"",isheBaslamaDate:"2026-02-02",offer:"",funksiyaRehberi:"Nijat Mammadov",kimdən:"Vusal Rajabov",qeyd:""},
+  {id:2,ad:"Seyran Hüseynov",vezife:"Qazmaya nəzarət qrup rəhbəri",funksiya:"Drilling & Well Operations",idarə:"SUOM",kurator:"Tunzalə Nemətzadə (Şöbə rəisi)",mesul:"Nigar Əsədullayeva",status:"İşə Başladı",hrbpDate:"2026-01-05",iqDate:"2026-01-06",musibaheDate:"2026-01-08",ehDate:"2026-01-15",basofisDate:"2026-01-22",secSenedDate:"",secYoxlamaDate:"",secNeticeDate:"",pepFormaDate:"",pepRehberDate:"",pepBasoDate:"",isheBaslamaDate:"2026-01-30",offer:"",funksiyaRehberi:"Tural Nağıbəyli",kimdən:"Nigar Əsədullayeva",qeyd:""},
+  {id:3,ad:"Murad Məcidov",vezife:"Completion Team Leader",funksiya:"Drilling & Well Operations",idarə:"SUOM",kurator:"Tunzalə Nemətzadə (Şöbə rəisi)",mesul:"Nigar Əsədullayeva",status:"Security Check — Yoxlama",hrbpDate:"2025-11-25",iqDate:"2025-12-01",musibaheDate:"2025-12-10",ehDate:"2026-01-07",basofisDate:"2026-01-14",secSenedDate:"2026-01-15",secYoxlamaDate:"2026-01-20",secNeticeDate:"",pepFormaDate:"",pepRehberDate:"",pepBasoDate:"",isheBaslamaDate:"",offer:"11K AZN",funksiyaRehberi:"Vusal Rajabov",kimdən:"Vusal Rajabov",qeyd:"SLB Guyana"},
+  {id:4,ad:"Rüfət Cəfərli",vezife:"Completion Team Leader",funksiya:"Drilling & Well Operations",idarə:"SUOM",kurator:"Tunzalə Nemətzadə (Şöbə rəisi)",mesul:"Nigar Əsədullayeva",status:"Salary Negotiation",hrbpDate:"2026-02-12",iqDate:"2026-02-13",musibaheDate:"2026-02-17",ehDate:"2026-02-17",basofisDate:"",secSenedDate:"",secYoxlamaDate:"",secNeticeDate:"",pepFormaDate:"",pepRehberDate:"",pepBasoDate:"",isheBaslamaDate:"",offer:"13K",funksiyaRehberi:"Vusal Rajabov",kimdən:"Vusal Rajabov",qeyd:"Equinor"},
+  {id:5,ad:"Nicat Babayev",vezife:"Rəqəmsallaşma mütəxəssisi",funksiya:"İT",idarə:"SUOM",kurator:"Tunzalə Nemətzadə (Şöbə rəisi)",mesul:"Nigar Əsədullayeva",status:"PEP — Baş Ofis",hrbpDate:"2025-09-11",iqDate:"2025-09-15",musibaheDate:"2025-09-20",ehDate:"2026-01-15",basofisDate:"2026-01-20",secSenedDate:"2026-01-25",secYoxlamaDate:"2026-02-01",secNeticeDate:"2026-02-10",pepFormaDate:"2026-02-15",pepRehberDate:"2026-02-20",pepBasoDate:"2026-03-01",isheBaslamaDate:"2026-04-01",offer:"5K net",funksiyaRehberi:"İlqar Maharramov",kimdən:"İlqar Maharramov",qeyd:"Sabina xanım 01.04.2026"},
+  {id:6,ad:"Rahim Katayev",vezife:"CoW Coordinator",funksiya:"HSE",idarə:"SUOM",kurator:"Nigar Əsədullayeva",mesul:"Nigar Əsədullayeva",status:"Müsahibə — Uğurlu",hrbpDate:"2026-03-01",iqDate:"2026-03-03",musibaheDate:"2026-03-05",ehDate:"",basofisDate:"",secSenedDate:"",secYoxlamaDate:"",secNeticeDate:"",pepFormaDate:"",pepRehberDate:"",pepBasoDate:"",isheBaslamaDate:"",offer:"",funksiyaRehberi:"Nijat Mammadov",kimdən:"Nijat Mammadov",qeyd:"5 nəfərdən tək keçdi"},
+];
+
+let tasks=[
+  {id:1,movzu:"İşə qəbul",tapşırıq:"Rüfət Cəfərli — salary neg. + offer",kimden:"Vusal Rajabov",idarə:"SUOM",funksiya:"Drilling & Well Operations",funksiyaRehberi:"Vusal Rajabov",kurator:"Tunzalə Nemətzadə (Şöbə rəisi)",mesul:"Nigar Əsədullayeva",prioritet:"Kritik",status:"Davam edir",tarix:"2026-02-17",blok:"",layihe:"—",mail:"",qeyd:"13K razılaşıldı"},
+  {id:2,movzu:"İşə qəbul",tapşırıq:"İlqar Məhərrəmov — promotion + 10K",kimden:"Elşad Dəmirçiyev",idarə:"SUOM",funksiya:"Drilling & Well Operations",funksiyaRehberi:"Tural Nağıbəyli",kurator:"Tunzalə Nemətzadə (Şöbə rəisi)",mesul:"Nigar Əsədullayeva",prioritet:"Kritik",status:"Açıq",tarix:"2026-04-13",blok:"",layihe:"—",mail:"",qeyd:""},
+  {id:3,movzu:"TSP",tapşırıq:"Azneft→SUOM keçid — 7 SƏTƏMM əməkdaşı",kimden:"Farid Rasulov",idarə:"Azneft İB",funksiya:"HSE",funksiyaRehberi:"Farid Rasulov",kurator:"Tunzalə Nemətzadə (Şöbə rəisi)",mesul:"Nigar Əsədullayeva",prioritet:"Yüksək",status:"Davam edir",tarix:"2026-04-03",blok:"",layihe:"Layihə 2 — Azneft İB Employee Transition to SUOM",mail:"",qeyd:""},
+  {id:4,movzu:"Layihə",tapşırıq:"Transport Carve-out — struktur hazırlığı",kimden:"Heydər Əhmədli",idarə:"SUOM",funksiya:"Transportation Management",funksiyaRehberi:"",kurator:"Heydər Əhmədli",mesul:"Heydər Əhmədli",prioritet:"Yüksək",status:"Davam edir",tarix:"2026-03-15",blok:"",layihe:"Layihə 4 — Transport Department Carve-out",mail:"",qeyd:""},
+  {id:5,movzu:"Performans",tapşırıq:"SƏTƏMM komandası 2025 PMS yekun",kimden:"Farid Rasulov",idarə:"SUOM",funksiya:"HSE",funksiyaRehberi:"Farid Rasulov",kurator:"Əfsanə Qəhrəmanlı",mesul:"Əfsanə Qəhrəmanlı",prioritet:"Orta",status:"Tamamlandı",tarix:"2026-02-12",blok:"",layihe:"Layihə 5 — Performansın İdarəedilməsi Sistemi",mail:"",qeyd:""},
+  {id:6,movzu:"TSP",tapşırıq:"MTTİ ştat ləğvi dəqiqləşdir",kimden:"Nərmin Bağırova",idarə:"MTTİ",funksiya:"Supply Chain",funksiyaRehberi:"",kurator:"Nərmin Bağırova",mesul:"Nərmin Bağırova",prioritet:"Orta",status:"Davam edir",tarix:"2026-01-06",blok:"",layihe:"Layihə 6 — Təşkilati Sağlamlaşdırma Prosesi",mail:"",qeyd:""},
+  {id:7,movzu:"Layihə",tapşırıq:"Dalma Qurğuları LLC — sənəd paket",kimden:"Heydər Əhmədli",idarə:"Dalma",funksiya:"Construction Projects",funksiyaRehberi:"",kurator:"Heydər Əhmədli",mesul:"Heydər Əhmədli",prioritet:"Yüksək",status:"Davam edir",tarix:"2026-03-20",blok:"",layihe:"Layihə 7 — Dalma Qurğuları LLC Establishment",mail:"",qeyd:""},
+];
+
+let vacancies=[
+  {id:1,vezife:"CCM&ER Manager",funksiya:"HSE",idarə:"Azneft İB",teleb:"Nijat Mammadov",hrbpDate:"2025-12-29",dovr:"2026-Q1",status:"Aktiv — Elan Gedib",deadline:"2026-01-09",qeyd:""},
+  {id:2,vezife:"Sağlamlıq üzrə menecer",funksiya:"HSE",idarə:"SUOM",teleb:"Nijat Mammadov",hrbpDate:"2026-02-05",dovr:"2026-Q2",status:"Aktiv",deadline:"",qeyd:""},
+  {id:3,vezife:"Fövqəladə hallar meneceri",funksiya:"HSE",idarə:"SUOM",teleb:"Nijat Mammadov",hrbpDate:"2026-03-11",dovr:"2026-Q2",status:"LinkedIn-də",deadline:"2026-04-01",qeyd:""},
+  {id:4,vezife:"Completion Team Leader",funksiya:"Drilling & Well Operations",idarə:"SUOM",teleb:"Vusal Rajabov",hrbpDate:"2025-11-25",dovr:"2026-Q1",status:"Salary Negotiation",deadline:"",qeyd:"Rüfət Cəfərli"},
+];
+
+let onboardings=[
+  {id:1,ad:"Qahir Bəylərov",vezife:"Quyu təmiri qrup rəhbəri",start:"2026-02-02",stages:{},status:"Tamamlandı"},
+  {id:2,ad:"Seyran Hüseynov",vezife:"Qazmaya nəzarət qrup rəhbəri",start:"2026-01-30",stages:{},status:"Davam edir"},
+];
+
+let obStages=["Laptop & Email","Access & Sistem","İnduksiya","Rəhbər görüşü & PEP"];
+
+let transfers=[
+  {id:1,ad:"Sama Ağaməmmədova",fin:"",tabel:"",muraciyet:"SOCAR HO → SUOM",funksiya:"Process Safety-Integrated",departament:"Proses Təhlükəsizliyi",struktur:"",azneftVezife:"Proses mühəndisi",suomVezife:"Proses Təhl. Mühəndisi",kecidVezife:"",currentKat:"Specialist",plannedKat:"Baş mütəxəssis",esaslandirma:"SOCAR HO-dan SUOM strukturuna keçid",kurator:"Tunzalə Nemətzadə (Şöbə rəisi)",hrbp:"Nigar Əsədullayeva",mesul:"Nigar Əsədullayeva",status:"Davam edir",currentStage:2,deadline:"2026-06-01",
+    tarix:"2026-01-16",muraciyet_tarix:"2026-01-16",hrbp_tarix:"2026-01-18",funkReh_tarix:"2026-01-22",eh_tarix:"",basofis_tarix:"",secChk_tarix:"",pep_tarix:"",muqavile_tarix:"",ishe_baslama_tarix:"",
+    qeyd:"Asif Həsənli rəhbər",tasks:[{id:1,name:"Rəhbəri forma göndərilsin",mesul:"Nigar Əsədullayeva",deadline:"2026-01-20",done:true},{id:2,name:"JD hazırlansın",mesul:"Surat Asgarov",deadline:"2026-02-01",done:true},{id:3,name:"Baş ofis razılığı alınsın",mesul:"Nigar Əsədullayeva",deadline:"2026-03-01",done:false}],log:[{tarix:"2026-01-16",kim:"Nigar Ə.",ne:"Transfer müraciəti yaradıldı",qeyd:""},{tarix:"2026-01-20",kim:"Nigar Ə.",ne:"Mərhələ irəlilədi: HRBP baxışı → Funksiya rəhbərinin razılığı",qeyd:""}]},
+  {id:2,ad:"Mehmet Kısmet",fin:"",tabel:"",muraciyet:"Digər SOCAR → SUOM",funksiya:"Transformasiya team",departament:"Transformasiya",struktur:"",azneftVezife:"Transformasiya eksperti",suomVezife:"Transformasiya meneceri",kecidVezife:"",currentKat:"Böyük mütəxəssis",plannedKat:"Menecer",esaslandirma:"SOCAR Türkiyə-dən keçid",kurator:"Tunzalə Nemətzadə (Şöbə rəisi)",hrbp:"Nigar Əsədullayeva",mesul:"Nigar Əsədullayeva",status:"Security Check-də",currentStage:5,deadline:"2026-05-01",
+    tarix:"2026-01-15",muraciyet_tarix:"2026-01-15",hrbp_tarix:"2026-01-17",funkReh_tarix:"2026-01-20",eh_tarix:"2026-01-25",basofis_tarix:"2026-02-01",secChk_tarix:"2026-02-05",pep_tarix:"",muqavile_tarix:"",ishe_baslama_tarix:"",
+    qeyd:"Immigration prosesi",tasks:[{id:1,name:"Viza sənədləri",mesul:"Nigar Əsədullayeva",deadline:"2026-02-01",done:true},{id:2,name:"Security check sənədləri",mesul:"HR",deadline:"2026-02-15",done:false}],log:[{tarix:"2026-01-15",kim:"Nigar Ə.",ne:"Transfer müraciəti yaradıldı",qeyd:""},{tarix:"2026-02-01",kim:"Tunzalə N.",ne:"Security Check başladıldı",qeyd:""}]},
+  {id:3,ad:"Arman Telci",fin:"",tabel:"",muraciyet:"Digər SOCAR → SUOM",funksiya:"Transformasiya team",departament:"Transformasiya",struktur:"",azneftVezife:"Transformasiya meneceri",suomVezife:"Transformasiya baş meneceri",kecidVezife:"",currentKat:"Menecer",plannedKat:"Baş menecer",esaslandirma:"SOCAR Türkiyə-dən uzunmüddətli keçid",kurator:"Tunzalə Nemətzadə (Şöbə rəisi)",hrbp:"Nigar Əsədullayeva",mesul:"Nigar Əsədullayeva",status:"Security Check-də",currentStage:5,deadline:"2026-07-01",
+    tarix:"2025-12-01",muraciyet_tarix:"2025-12-01",hrbp_tarix:"2025-12-03",funkReh_tarix:"2025-12-08",eh_tarix:"2025-12-15",basofis_tarix:"2026-01-05",secChk_tarix:"2026-01-10",pep_tarix:"",muqavile_tarix:"",ishe_baslama_tarix:"",
+    qeyd:"Ən uzun proses",tasks:[],log:[{tarix:"2025-12-01",kim:"Nigar Ə.",ne:"Transfer müraciəti yaradıldı",qeyd:""}]},
+];
+
+let workflowStages=DEFAULT_WF.map((n,i)=>({id:i+1,name:n}));
+let projects=[
+  {id:1,ad:"Layihə 1 — Azneft İB–SUOM İnterim Structure",stages:["Analiz","Struktur dizayn","Təsdiq","Tətbiq"],doneCount:2,status:"Davam edir",kurator:"Heydər Əhmədli",deadline:"2026-06-30",qeyd:""},
+  {id:2,ad:"Layihə 2 — Azneft İB Employee Transition to SUOM",stages:["Siyahı hazırlığı","Transfer sənədləri","Onboarding","Tamamlandı"],doneCount:1,status:"Davam edir",kurator:"Tunzalə Nemətzadə (Şöbə rəisi)",deadline:"2026-07-31",qeyd:""},
+  {id:3,ad:"Layihə 4 — Transport Department Carve-out",stages:["Struktur analizi","Ştat transfer","Maliyyə ayrılması","Tamamlandı"],doneCount:1,status:"Davam edir",kurator:"Heydər Əhmədli",deadline:"2026-09-30",qeyd:""},
+  {id:4,ad:"Layihə 5 — Performansın İdarəedilməsi Sistemi",stages:["Dizayn","Pilot","Yayım","Monitorinq"],doneCount:2,status:"Davam edir",kurator:"Əfsanə Qəhrəmanlı",deadline:"2026-08-31",qeyd:""},
+  {id:5,ad:"Layihə 6 — Təşkilati Sağlamlaşdırma Prosesi",stages:["Audit","TSP hazırlıq","Tətbiq","Yekun"],doneCount:1,status:"Davam edir",kurator:"Nərmin Bağırova",deadline:"2026-12-31",qeyd:""},
+  {id:6,ad:"Layihə 7 — Dalma Qurğuları LLC Establishment",stages:["Hüquqi sənədlər","Ştat formalaşdırma","Qeydiyyat","Fəaliyyət"],doneCount:1,status:"Davam edir",kurator:"Heydər Əhmədli",deadline:"2026-10-31",qeyd:""},
+];
+
+let auditLog=[];
+
+// HELPERS
+const TODAY=new Date();
+function dAgo(d){if(!d)return null;return Math.floor((TODAY-new Date(d))/86400000);}
+function dBw(a,b){if(!a||!b)return null;return Math.floor((new Date(b)-new Date(a))/86400000);}
+function fd(n,s=false){
+  if(n===null||n===undefined)return '<span style="color:#ccc">—</span>';
+  if(!s&&n===0)return '<span style="color:#ccc">0g</span>';
+  if(n>30)return `<span style="color:var(--red);font-weight:600">${n}g</span>`;
+  if(n>14)return `<span style="color:var(--amber);font-weight:600">${n}g</span>`;
+  return `<span style="color:var(--green);font-weight:600">${n}g</span>`;
+}
+function nid(a){return a.length?Math.max(...a.map(x=>x.id))+1:1;}
+function pill(s){
+  const m={"İşə Başladı":"pill-green","Tamamlandı":"pill-green","Müsahibə — Uğurlu":"pill-green",
+    "Security Check — Sənəd":"pill-purple","Security Check — Yoxlama":"pill-purple","Security Check — Nəticə":"pill-purple","Security Check-də":"pill-purple",
+    "PEP — Forma":"pill-purple","PEP — Rəhbər imzası":"pill-purple","PEP — Baş Ofis":"pill-purple","PEP-də":"pill-purple",
+    "Immigration":"pill-orange","Salary Negotiation":"pill-amber","Müsahibə":"pill-amber","Müsahibə Planlanır":"pill-amber","Preferred candidate":"pill-amber","İşə Qəbul Prosesi":"pill-amber","Davam edir":"pill-blue",
+    "CV Göndərildi":"pill-dark","Aktiv":"pill-blue","Aktiv — Elan Gedib":"pill-blue","LinkedIn-də":"pill-dark","Açıq":"pill-amber",
+    "Blok — Ştat Yox":"pill-red","Blok":"pill-red","Rədd":"pill-gray","Rədd edildi":"pill-gray","Ləğv edildi":"pill-gray","Gözləyir":"pill-dark",
+    "Kritik":"pill-red","Yüksək":"pill-orange","Orta":"pill-blue","Aşağı":"pill-gray",
+    "Natamam":"pill-amber","Başlanmayıb":"pill-red","Baş Ofis Təsdiqində":"pill-teal","Müqavilə Gözləyir":"pill-teal"};
+  return `<span class="pill ${m[s]||'pill-gray'}">${s}</span>`;
+}
+function sel(opts,val,id){return `<select id="${id}" class="form-control">${opts.map(o=>`<option value="${o}"${o===val?' selected':''}>${o}</option>`).join('')}</select>`;}
+function g(id){return(document.getElementById(id)||{}).value||'';}
+function ge(id){return document.getElementById(id);}
+function addAudit(ob,ne,eski,yeni){auditLog.unshift({tarix:new Date().toISOString(),kim:"HR",ob,ne,eski,yeni});if(auditLog.length>500)auditLog=auditLog.slice(0,500);sd('bp_audit',auditLog);}
+
+// NAV
+let curPage='dashboard';
+const pgT={dashboard:'Dashboard',pipeline:'Namizəd Pipeline',vacancies:'Vakansiyalar',tasks:'Task İzləmə',onboarding:'Onboarding',transfer:'Transfer İdarəetmə',projects:'Layihələr',kurators:'Kurator Performansı',funksiyalar:'Funksiya / İdarə'};
+
+function openAddModal(){
+  if(curPage==='pipeline')openCandModal();
+  else if(curPage==='vacancies')openVacModal();
+  else if(curPage==='tasks')openTaskModal();
+  else if(curPage==='onboarding')openOnboardingModal();
+  else if(curPage==='transfer')openTransferModal();
+}
+function updateBadges(){
+  ge('nb-pipeline').textContent=candidates.filter(c=>!['İşə Başladı','Rədd'].includes(c.status)).length;
+  ge('nb-tasks').textContent=tasks.filter(t=>['Açıq','Davam edir'].includes(t.status)).length;
+  ge('nb-transfer').textContent=transfers.filter(t=>!['Tamamlandı','Rədd edildi'].includes(t.status)).length;
+}
+
+// DASHBOARD
+function renderDashboard(){
+  const started=candidates.filter(c=>c.status==='İşə Başladı').length;
+  const active=candidates.filter(c=>!['İşə Başladı','Rədd'].includes(c.status)).length;
+  const sec=candidates.filter(c=>c.status.startsWith('Security')).length;
+  const pep=candidates.filter(c=>c.status.startsWith('PEP')).length;
+  const critT=tasks.filter(t=>t.prioritet==='Kritik'&&t.status!=='Tamamlandı').length;
+  const openV=vacancies.filter(v=>!['Blok — Ştat Yox','Tamamlandı'].includes(v.status)).length;
+  const trActive=transfers.filter(t=>!['Tamamlandı','Rədd edildi'].includes(t.status)).length;
+  ge('dash-kpis').innerHTML=`
+    <div class="kpi green" onclick="goPage('pipeline')"><div class="kpi-label">İşə Başladı</div><div class="kpi-val">${started}</div></div>
+    <div class="kpi" onclick="goPage('pipeline')"><div class="kpi-label">Aktiv Pipeline</div><div class="kpi-val">${active}</div></div>
+    <div class="kpi purple" onclick="goPage('pipeline')"><div class="kpi-label">Security Check</div><div class="kpi-val">${sec}</div></div>
+    <div class="kpi purple" onclick="goPage('pipeline')"><div class="kpi-label">PEP Prosesi</div><div class="kpi-val">${pep}</div></div>
+    <div class="kpi red" onclick="goPage('tasks')"><div class="kpi-label">Kritik Task</div><div class="kpi-val">${critT}</div></div>
+    <div class="kpi amber" onclick="goPage('vacancies')"><div class="kpi-label">Açıq Vakansiya</div><div class="kpi-val">${openV}</div></div>
+    <div class="kpi teal" onclick="goPage('transfer')"><div class="kpi-label">Aktiv Transfer</div><div class="kpi-val">${trActive}</div></div>`;
+  let alerts='';
+  if(critT>0)alerts+=`<div class="alert alert-red"><div><div class="alert-title">⚠ ${critT} kritik task açıqdır</div><div class="alert-desc">${tasks.filter(t=>t.prioritet==='Kritik'&&t.status!=='Tamamlandı').slice(0,3).map(t=>t.tapşırıq.substring(0,40)).join(' | ')}</div></div></div>`;
+  if(sec>0)alerts+=`<div class="alert alert-amber"><div><div class="alert-title">🔒 ${sec} namizəd Security Check-dədir</div><div class="alert-desc">${candidates.filter(c=>c.status.startsWith('Security')).map(c=>c.ad).join(', ')}</div></div></div>`;
+  const lateT=transfers.filter(t=>t.deadline&&dAgo(t.deadline)>0&&!['Tamamlandı','Rədd edildi'].includes(t.status));
+  if(lateT.length)alerts+=`<div class="alert alert-red"><div><div class="alert-title">🔄 ${lateT.length} transfer gecikib</div><div class="alert-desc">${lateT.map(t=>t.ad).join(', ')}</div></div></div>`;
+  ge('dash-alerts').innerHTML=alerts;
+  const critC=candidates.filter(c=>['Security Check — Sənəd','Security Check — Yoxlama','Salary Negotiation','PEP — Forma','PEP — Rəhbər imzası','PEP — Baş Ofis','Immigration'].includes(c.status)).slice(0,6);
+  ge('dash-critical').innerHTML=critC.map(c=>`<tr class="clickable" onclick="goPage('pipeline');setTimeout(()=>showCandDetail(${c.id}),50)"><td style="font-weight:600">${c.ad}</td><td>${pill(c.status)}</td><td style="font-size:11px">${c.kurator}</td><td>${fd(dAgo(c.hrbpDate))}</td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:#ccc;padding:12px">Kritik proses yoxdur</td></tr>';
+  const acts=[{t:"Nicat Babayev — PEP Baş Ofis",m:"5K net | 01.04.2026",c:"#6A1B9A"},{t:"Rüfət Cəfərli — Salary Neg. 13K",m:"17.02.2026",c:"#F57F17"},{t:"Sama Ağaməmmədova — Transfer davam edir",m:"SOCAR HO → SUOM",c:"#1565C0"},{t:"Mehmet Kısmet — Security Check",m:"SOCAR Türkiyə",c:"#6A1B9A"},{t:"İlqar Məhərrəmov — Promotion 10K",m:"Kritik | Açıq",c:"#C62828"}];
+  ge('dash-activity').innerHTML=acts.map(a=>`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #F5F5F5"><div style="width:6px;height:6px;border-radius:50%;background:${a.c};flex-shrink:0;margin-top:4px"></div><div><div style="font-size:12px;font-weight:500">${a.t}</div><div style="font-size:10px;color:#90A4AE">${a.m}</div></div></div>`).join('');
+  const sc={};candidates.forEach(c=>{const s=c.status==='İşə Başladı'?'İşə Başladı':c.status.startsWith('Security')?'Security':c.status.startsWith('PEP')?'PEP':c.status==='Salary Negotiation'?'Salary Neg.':['Müsahibə','Müsahibə Planlanır','Müsahibə — Uğurlu'].includes(c.status)?'Müsahibə':c.status==='Rədd'?'Rədd':'Digər';sc[s]=(sc[s]||0)+1;});
+  const pC={'İşə Başladı':'#2E7D32','Security':'#6A1B9A','PEP':'#4A148C','Salary Neg.':'#F57F17','Müsahibə':'#1565C0','Rədd':'#90A4AE','Digər':'#78909C'};
+  const maxP=Math.max(...Object.values(sc),1);
+  ge('dash-pipeline-chart').innerHTML=Object.entries(sc).sort((a,b)=>b[1]-a[1]).map(([s,n])=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><div style="width:75px;font-size:10px;color:#90A4AE;text-align:right;flex-shrink:0">${s}</div><div class="progress" style="flex:1"><div class="progress-bar" style="width:${Math.round(n/maxP*100)}%;background:${pC[s]||'#90A4AE'}"></div></div><div style="width:18px;font-size:11px;font-weight:600">${n}</div></div>`).join('');
+  const tc={};tasks.forEach(t=>{tc[t.movzu]=(tc[t.movzu]||0)+1;});
+  const tC=['#1565C0','#2E7D32','#F57F17','#6A1B9A','#C62828','#78909C'];
+  const maxT=Math.max(...Object.values(tc),1);
+  ge('dash-task-chart').innerHTML=Object.entries(tc).sort((a,b)=>b[1]-a[1]).map(([s,n],i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><div style="width:75px;font-size:10px;color:#90A4AE;text-align:right;flex-shrink:0">${s}</div><div class="progress" style="flex:1"><div class="progress-bar" style="width:${Math.round(n/maxT*100)}%;background:${tC[i%tC.length]}"></div></div><div style="width:18px;font-size:11px;font-weight:600">${n}</div></div>`).join('');
+}
+
+// PIPELINE
+let pf={status:'',funksiya:'',kurator:'',name:''};
+function renderPipeline(){
+  const allS=[...new Set(candidates.map(c=>c.status))].sort();
+  const allF=[...new Set(candidates.map(c=>c.funksiya))].sort();
+  const allK=[...new Set(candidates.map(c=>c.kurator))].sort();
+  ge('pipeline-filters').innerHTML=`
+    <select onchange="pf.status=this.value;renderPipeline()" class="form-control" style="height:30px;width:auto"><option value="">Bütün statuslar</option>${allS.map(s=>`<option value="${s}"${pf.status===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select onchange="pf.funksiya=this.value;renderPipeline()" class="form-control" style="height:30px;width:auto"><option value="">Bütün funksiyalar</option>${allF.map(s=>`<option value="${s}"${pf.funksiya===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select onchange="pf.kurator=this.value;renderPipeline()" class="form-control" style="height:30px;width:auto"><option value="">Bütün kuratorlar</option>${allK.map(s=>`<option value="${s}"${pf.kurator===s?' selected':''}>${s}</option>`).join('')}</select>
+    <input type="text" value="${pf.name}" oninput="pf.name=this.value;renderPipeline()" placeholder="Ad axtar..." class="form-control" style="height:30px;width:150px">
+    <button class="btn btn-primary" onclick="openCandModal()">+ Namizəd</button>`;
+  const data=candidates.filter(c=>(!pf.status||c.status===pf.status)&&(!pf.funksiya||c.funksiya===pf.funksiya)&&(!pf.kurator||c.kurator===pf.kurator)&&(!pf.name||c.ad.toLowerCase().includes(pf.name.toLowerCase())));
+  ge('pipeline-tbody').innerHTML=data.map(c=>{
+    const isCrit=['Security Check — Sənəd','Security Check — Yoxlama','Salary Negotiation','PEP — Forma','PEP — Rəhbər imzası','PEP — Baş Ofis'].includes(c.status);
+    return `<tr class="clickable${isCrit?' crit':''}" onclick="showCandDetail(${c.id})">
+      <td style="font-weight:600">${c.ad}</td><td style="font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.vezife}</td>
+      <td style="font-size:11px">${c.funksiya}</td><td style="font-size:11px">${c.kurator}</td><td style="font-size:11px">${c.mesul||'—'}</td>
+      <td style="text-align:center">${fd(dBw(c.hrbpDate,c.iqDate))}</td><td style="text-align:center">${fd(dBw(c.iqDate,c.musibaheDate))}</td>
+      <td style="text-align:center">${fd(dBw(c.musibaheDate,c.ehDate))}</td><td style="text-align:center">${fd(dBw(c.ehDate,c.basofisDate))}</td>
+      <td>${pill(c.status)}</td><td style="text-align:center">${fd(dAgo(c.hrbpDate))}</td>
+      <td onclick="event.stopPropagation()" style="white-space:nowrap">
+        <button class="btn btn-sm" onclick="openCandModal(${c.id})">✏</button>
+        <button class="btn btn-sm btn-danger" onclick="if(confirm('Silinsin?')){candidates=candidates.filter(x=>x.id!==${c.id});saveAll();renderPipeline();renderDashboard();updateBadges()}">🗑</button>
+      </td></tr>`;
+  }).join('')||'<tr><td colspan="12" style="text-align:center;color:#ccc;padding:16px">Namizəd tapılmadı</td></tr>';
+}
+function showCandDetail(id){
+  const c=candidates.find(x=>x.id===id);if(!c)return;
+  ge('pipeline-table-wrap').style.display='none';ge('pipeline-detail').style.display='';
+  const stages=[{n:"HRBP Daxil",d:c.hrbpDate,nx:c.iqDate},{n:"İşə Qəbula ötür",d:c.iqDate,nx:c.musibaheDate},{n:"Müsahibə",d:c.musibaheDate,nx:c.ehDate},{n:"Əmək haqqı",d:c.ehDate,nx:c.basofisDate},{n:"Baş ofis göndər",d:c.basofisDate,nx:c.secSenedDate||c.pepFormaDate},{n:"Sec — Sənəd",d:c.secSenedDate,nx:c.secYoxlamaDate},{n:"Sec — Yoxlama",d:c.secYoxlamaDate,nx:c.secNeticeDate},{n:"Sec — Nəticə",d:c.secNeticeDate,nx:c.pepFormaDate},{n:"PEP — Forma",d:c.pepFormaDate,nx:c.pepRehberDate},{n:"PEP — Rəhbər",d:c.pepRehberDate,nx:c.pepBasoDate},{n:"PEP — Baş Ofis",d:c.pepBasoDate,nx:c.isheBaslamaDate},{n:"İşə Başlama",d:c.isheBaslamaDate,nx:null}].filter(s=>s.d);
+  ge('pipeline-detail').innerHTML=`
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button class="btn" onclick="ge('pipeline-detail').style.display='none';ge('pipeline-table-wrap').style.display=''">← Geri</button>
+      <button class="btn btn-primary btn-sm" onclick="openCandModal(${c.id})">✏ Düzəliş et</button>
+      <button class="btn btn-danger btn-sm" onclick="if(confirm('Silinsin?')){candidates=candidates.filter(x=>x.id!==${c.id});saveAll();goPage('pipeline')}">🗑 Sil</button>
+    </div>
+    <div class="detail-panel">
+      <div class="detail-title">${c.ad}</div><div class="detail-sub">${c.vezife} | ${c.funksiya} | ${c.idarə}</div>
+      <div class="detail-grid">
+        <div class="detail-field"><div class="detail-field-label">Status</div><div class="detail-field-val">${pill(c.status)}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Kurator</div><div class="detail-field-val">${c.kurator}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Məsul şəxs</div><div class="detail-field-val">${c.mesul||'—'}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Funksiya rəhbəri</div><div class="detail-field-val">${c.funksiyaRehberi||'—'}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Kimdən daxil olub</div><div class="detail-field-val">${c.kimdən||'—'}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Offer</div><div class="detail-field-val">${c.offer||'—'}</div></div>
+        <div class="detail-field"><div class="detail-field-label">Ümumi gün</div><div class="detail-field-val">${fd(dAgo(c.hrbpDate))}</div></div>
+      </div>
+      <div class="section-box">
+        <div class="section-box-title">🔄 Mərhələlər — Gün Hesabı</div>
+        ${stages.map((s,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #F5F5F5">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--mid);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+          <div style="flex:1;font-size:12px;font-weight:500">${s.n}</div>
+          <div style="font-size:11px;color:#90A4AE">${s.d}</div>
+          <div style="min-width:40px;text-align:right">${s.nx?fd(dBw(s.d,s.nx),true):'<span style="color:#ccc">—</span>'}</div>
+        </div>`).join('')}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="section-box"><div class="section-box-title">🔒 Security Check</div>
+          ${[{n:"Sənəd göndərildi",d:c.secSenedDate},{n:"Orqan yoxlaması",d:c.secYoxlamaDate},{n:"Nəticə gəldi",d:c.secNeticeDate}].map((s,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #F5F5F5"><span style="width:18px;height:18px;border-radius:50%;background:${s.d?'#6A1B9A':'#E0E0E0'};color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</span><span style="flex:1;font-size:11px">${s.n}</span><span style="font-size:10px;color:#90A4AE">${s.d||'—'}</span></div>`).join('')}
+        </div>
+        <div class="section-box"><div class="section-box-title">📋 PEP</div>
+          ${[{n:"PEP forması",d:c.pepFormaDate},{n:"Rəhbər imzası",d:c.pepRehberDate},{n:"Baş Ofis",d:c.pepBasoDate}].map((s,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #F5F5F5"><span style="width:18px;height:18px;border-radius:50%;background:${s.d?'#4A148C':'#E0E0E0'};color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</span><span style="flex:1;font-size:11px">${s.n}</span><span style="font-size:10px;color:#90A4AE">${s.d||'—'}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// VACANCIES
+let vf={status:'',funksiya:''};
+function renderVacancies(){
+  const allS=[...new Set(vacancies.map(v=>v.status))].sort();
+  const allF=[...new Set(vacancies.map(v=>v.funksiya))].sort();
+  ge('vacancy-filters').innerHTML=`
+    <select onchange="vf.status=this.value;renderVacancies()" class="form-control" style="height:30px;width:auto"><option value="">Bütün statuslar</option>${allS.map(s=>`<option value="${s}"${vf.status===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select onchange="vf.funksiya=this.value;renderVacancies()" class="form-control" style="height:30px;width:auto"><option value="">Bütün funksiyalar</option>${allF.map(s=>`<option value="${s}"${vf.funksiya===s?' selected':''}>${s}</option>`).join('')}</select>
+    <button class="btn btn-primary" onclick="openVacModal()">+ Vakansiya</button>`;
+  ge('vacancies-tbody').innerHTML=vacancies.filter(v=>(!vf.status||v.status===vf.status)&&(!vf.funksiya||v.funksiya===vf.funksiya)).map(v=>`
+    <tr class="clickable" onclick="showVacDetail(${v.id})">
+      <td style="font-weight:600">${v.vezife}</td><td style="font-size:11px">${v.funksiya}</td><td style="font-size:11px">${v.idarə}</td>
+      <td style="font-size:11px">${v.teleb}</td><td style="font-size:11px">${v.hrbpDate||'—'}</td><td style="font-size:11px">${v.dovr||'—'}</td>
+      <td>${pill(v.status)}</td><td style="font-size:11px">${v.deadline||'—'}</td><td>${fd(dAgo(v.hrbpDate))}</td>
+      <td onclick="event.stopPropagation()" style="white-space:nowrap">
+        <button class="btn btn-sm" onclick="openVacModal(${v.id})">✏</button>
+        <button class="btn btn-sm btn-danger" onclick="if(confirm('Silinsin?')){vacancies=vacancies.filter(x=>x.id!==${v.id});saveAll();renderVacancies()}">🗑</button>
+      </td></tr>`).join('');
+}
+function showVacDetail(id){
+  const v=vacancies.find(x=>x.id===id);if(!v)return;
+  ge('vacancy-table-wrap').style.display='none';ge('vacancy-detail').style.display='';
+  ge('vacancy-detail').innerHTML=`<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn" onclick="ge('vacancy-detail').style.display='none';ge('vacancy-table-wrap').style.display=''">← Geri</button><button class="btn btn-primary btn-sm" onclick="openVacModal(${v.id})">✏</button><button class="btn btn-danger btn-sm" onclick="if(confirm('Silinsin?')){vacancies=vacancies.filter(x=>x.id!==${v.id});saveAll();goPage('vacancies')}">🗑 Sil</button></div>
+    <div class="detail-panel"><div class="detail-title">${v.vezife}</div><div class="detail-sub">${v.funksiya} | ${v.idarə}</div>
+    <div class="detail-grid">
+      <div class="detail-field"><div class="detail-field-label">Status</div><div class="detail-field-val">${pill(v.status)}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Tələb edən</div><div class="detail-field-val">${v.teleb}</div></div>
+      <div class="detail-field"><div class="detail-field-label">HRBP Daxil</div><div class="detail-field-val">${v.hrbpDate||'—'}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Dövr</div><div class="detail-field-val">${v.dovr||'—'}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Deadline</div><div class="detail-field-val">${v.deadline||'—'}</div></div>
+      <div class="detail-field"><div class="detail-field-label">HRBP-də gün</div><div class="detail-field-val">${fd(dAgo(v.hrbpDate))}</div></div>
+      ${v.qeyd?`<div class="detail-field" style="grid-column:1/-1"><div class="detail-field-label">Qeyd</div><div class="detail-field-val">${v.qeyd}</div></div>`:''}
+    </div></div>`;
+}
+
+// TASKS
+let tf={movzu:'',status:'',prioritet:'',kurator:'',layihe:''};
+function renderTasks(){
+  const allK=[...new Set(tasks.map(t=>t.kurator))].sort();
+  ge('task-filters').innerHTML=`
+    <select onchange="tf.movzu=this.value;renderTasks()" class="form-control" style="height:30px;width:auto"><option value="">Bütün mövzular</option>${MOVZULAR.map(s=>`<option value="${s}"${tf.movzu===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select onchange="tf.status=this.value;renderTasks()" class="form-control" style="height:30px;width:auto"><option value="">Bütün statuslar</option>${ST_TASK.map(s=>`<option value="${s}"${tf.status===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select onchange="tf.prioritet=this.value;renderTasks()" class="form-control" style="height:30px;width:auto"><option value="">Bütün prioritetlər</option>${PRIOR.map(s=>`<option value="${s}"${tf.prioritet===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select onchange="tf.kurator=this.value;renderTasks()" class="form-control" style="height:30px;width:auto"><option value="">Bütün kuratorlar</option>${allK.map(s=>`<option value="${s}"${tf.kurator===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select onchange="tf.layihe=this.value;renderTasks()" class="form-control" style="height:30px;width:auto"><option value="">Bütün layihələr</option>${LAYIHELER.map(s=>`<option value="${s}"${tf.layihe===s?' selected':''}>${s}</option>`).join('')}</select>
+    <button class="btn btn-primary" onclick="openTaskModal()">+ Task</button>`;
+  const data=tasks.filter(t=>(!tf.movzu||t.movzu===tf.movzu)&&(!tf.status||t.status===tf.status)&&(!tf.prioritet||t.prioritet===tf.prioritet)&&(!tf.kurator||t.kurator===tf.kurator)&&(!tf.layihe||t.layihe===tf.layihe));
+  ge('tasks-tbody').innerHTML=data.map(t=>{
+    const isCrit=t.prioritet==='Kritik'&&t.status!=='Tamamlandı';
+    return `<tr class="clickable${isCrit?' crit':''}" onclick="showTaskDetail(${t.id})">
+      <td>${pill(t.movzu)}</td><td style="font-size:11px;max-width:150px" title="${t.tapşırıq}">${t.tapşırıq.substring(0,42)}${t.tapşırıq.length>42?'…':''}</td>
+      <td style="font-size:11px">${t.kimden}</td><td style="font-size:11px">${t.idarə||'—'}</td><td style="font-size:11px">${t.funksiyaRehberi||'—'}</td>
+      <td style="font-size:11px">${t.kurator}</td><td style="font-size:11px">${t.mesul||'—'}</td>
+      <td>${pill(t.prioritet)}</td><td>${pill(t.status)}</td>
+      <td>${t.status!=='Tamamlandı'?fd(dAgo(t.tarix)):'<span style="color:var(--green)">✓</span>'}</td>
+      <td style="font-size:10px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.layihe&&t.layihe!=='—'?t.layihe.substring(0,18)+'…':'—'}</td>
+      <td onclick="event.stopPropagation()" style="white-space:nowrap">
+        <button class="btn btn-sm" onclick="openTaskModal(${t.id})">✏</button>
+        <button class="btn btn-sm btn-danger" onclick="if(confirm('Silinsin?')){tasks=tasks.filter(x=>x.id!==${t.id});saveAll();renderTasks();renderDashboard();updateBadges()}">🗑</button>
+      </td></tr>`;
+  }).join('');
+}
+function showTaskDetail(id){
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  ge('task-table-wrap').style.display='none';ge('task-detail').style.display='';
+  ge('task-detail').innerHTML=`<div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn" onclick="ge('task-detail').style.display='none';ge('task-table-wrap').style.display=''">← Geri</button><button class="btn btn-primary btn-sm" onclick="openTaskModal(${t.id})">✏</button><button class="btn btn-danger btn-sm" onclick="if(confirm('Silinsin?')){tasks=tasks.filter(x=>x.id!==${t.id});saveAll();goPage('tasks')}">🗑 Sil</button></div>
+    <div class="detail-panel"><div class="detail-title">${t.tapşırıq}</div><div class="detail-sub">${t.movzu} | ${t.idarə||''}</div>
+    <div class="detail-grid">
+      <div class="detail-field"><div class="detail-field-label">Prioritet</div><div class="detail-field-val">${pill(t.prioritet)}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Status</div><div class="detail-field-val">${pill(t.status)}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Kimdən daxil olub</div><div class="detail-field-val">${t.kimden}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Funksiya rəhbəri</div><div class="detail-field-val">${t.funksiyaRehberi||'—'}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Kurator</div><div class="detail-field-val">${t.kurator}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Məsul şəxs</div><div class="detail-field-val">${t.mesul||'—'}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Tarix</div><div class="detail-field-val">${t.tarix||'—'}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Açıq gün</div><div class="detail-field-val">${t.status!=='Tamamlandı'?fd(dAgo(t.tarix)):'✓ Tamamlandı'}</div></div>
+      <div class="detail-field"><div class="detail-field-label">Layihə</div><div class="detail-field-val">${t.layihe&&t.layihe!=='—'?t.layihe.substring(0,50):'—'}</div></div>
+      ${t.blok?`<div class="detail-field"><div class="detail-field-label">Blok</div><div class="detail-field-val" style="color:var(--red)">${t.blok}</div></div>`:''}
+      ${t.qeyd?`<div class="detail-field" style="grid-column:1/-1"><div class="detail-field-label">Qeyd</div><div class="detail-field-val">${t.qeyd}</div></div>`:''}
+    </div></div>`;
+}
+
+// ONBOARDING
+function renderOnboarding(){
+  candidates.filter(c=>c.status==='İşə Başladı').forEach(c=>{if(!onboardings.find(o=>o.ad===c.ad)){onboardings.push({id:nid(onboardings),ad:c.ad,vezife:c.vezife,start:c.isheBaslamaDate||'',stages:{},status:'Başlanmayıb'});saveAll();}});
+  ge('ob-thead').innerHTML=`<tr><th>Ad Soyad</th><th>Vəzifə</th><th>Start</th>${obStages.map(s=>`<th style="text-align:center;font-size:10px">${s}</th>`).join('')}<th>Status</th><th style="width:80px"></th></tr>`;
+  ge('ob-tbody').innerHTML=onboardings.map(o=>`<tr class="clickable${o.status==='Başlanmayıb'?' crit':''}" onclick="openOnboardingModal(${o.id})">
+    <td style="font-weight:600">${o.ad}</td><td style="font-size:11px">${o.vezife}</td><td style="font-size:11px">${o.start||'—'}</td>
+    ${obStages.map(s=>`<td style="text-align:center">${o.stages[s]==='✅'?'✅':o.stages[s]?`<span style="font-size:10px;color:var(--amber)">${o.stages[s]}</span>`:'<span style="color:#E0E0E0">○</span>'}</td>`).join('')}
+    <td>${pill(o.status)}</td>
+    <td onclick="event.stopPropagation()" style="white-space:nowrap"><button class="btn btn-sm" onclick="openOnboardingModal(${o.id})">✏</button><button class="btn btn-sm btn-danger" onclick="if(confirm('Silinsin?')){onboardings=onboardings.filter(x=>x.id!==${o.id});saveAll();renderOnboarding()}">🗑</button></td>
+  </tr>`).join('');
+}
+
+// TRANSFER
+let curTrTab='list';
+function switchTrTab(tab,el){
+  curTrTab=tab;
+  document.querySelectorAll('#page-transfer .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ge('tr-tab-list').style.display=tab==='list'?'':'none';
+  ge('tr-tab-dashboard').style.display=tab==='dashboard'?'':'none';
+  ge('tr-tab-workflow').style.display=tab==='workflow'?'':'none';
+  if(tab==='list')renderTransferList();
+  if(tab==='dashboard')renderTransferDashboard();
+  if(tab==='workflow')renderWfStages();
+}
+let trF={status:'',funksiya:'',name:''};
+function renderTransferPage(){renderTransferFilters();renderTransferList();}
+function renderTransferFilters(){
+  const allS=[...new Set(transfers.map(t=>t.status))].sort();
+  const allF=[...new Set(transfers.map(t=>t.funksiya))].sort();
+  ge('transfer-filters').innerHTML=`
+    <select onchange="trF.status=this.value;renderTransferList()" class="form-control" style="height:30px;width:auto"><option value="">Bütün statuslar</option>${allS.map(s=>`<option value="${s}"${trF.status===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select onchange="trF.funksiya=this.value;renderTransferList()" class="form-control" style="height:30px;width:auto"><option value="">Bütün funksiyalar</option>${allF.map(s=>`<option value="${s}"${trF.funksiya===s?' selected':''}>${s}</option>`).join('')}</select>
+    <input type="text" value="${trF.name}" oninput="trF.name=this.value;renderTransferList()" placeholder="Ad axtar..." class="form-control" style="height:30px;width:140px">
+    <button class="btn btn-primary" onclick="openTransferModal()">+ Transfer</button>
+    <button class="btn btn-export" onclick="exportTrExcel()">⬇ Excel</button>`;
+}
+function renderTransferList(){
+  ge('transfer-detail').style.display='none';ge('transfer-list-wrap').style.display='';
+  const data=transfers.filter(t=>(!trF.status||t.status===trF.status)&&(!trF.funksiya||t.funksiya===trF.funksiya)&&(!trF.name||t.ad.toLowerCase().includes(trF.name.toLowerCase())));
+  ge('transfer-tbody').innerHTML=data.map(t=>{
+    const csName=workflowStages[t.currentStage]?.name||'—';
+    const isLate=t.deadline&&dAgo(t.deadline)>0&&!['Tamamlandı','Rədd edildi'].includes(t.status);
+    // Stage interval days (like pipeline tracking)
+    const d1=fd(dBw(t.muraciyet_tarix,t.hrbp_tarix));
+    const d2=fd(dBw(t.hrbp_tarix,t.funkReh_tarix));
+    const d3=fd(dBw(t.funkReh_tarix,t.eh_tarix));
+    const d4=fd(dBw(t.eh_tarix,t.basofis_tarix));
+    const d5=fd(dBw(t.basofis_tarix,t.secChk_tarix));
+    const d6=fd(dBw(t.secChk_tarix,t.pep_tarix));
+    const d7=fd(dBw(t.pep_tarix,t.muqavile_tarix));
+    const d8=fd(dBw(t.muqavile_tarix,t.ishe_baslama_tarix));
+    return `<tr class="clickable${isLate?' crit':''}" onclick="showTransferDetail(${t.id})">
+      <td style="font-weight:600;white-space:nowrap">${t.ad}</td>
+      <td style="font-size:10px">${t.muraciyet||'—'}</td>
+      <td style="font-size:11px">${t.funksiya}</td>
+      <td style="font-size:11px">${t.currentKat||'—'}</td>
+      <td style="font-size:11px;color:var(--mid)">${t.plannedKat||'—'}</td>
+      <td style="text-align:center">
+        <div style="font-size:10px;color:#90A4AE">${t.muraciyet_tarix||'—'}</div>
+        <div>${d1}</div>
+      </td>
+      <td style="text-align:center">
+        <div style="font-size:10px;color:#90A4AE">${t.hrbp_tarix||'—'}</div>
+        <div>${d2}</div>
+      </td>
+      <td style="text-align:center">
+        <div style="font-size:10px;color:#90A4AE">${t.funkReh_tarix||'—'}</div>
+        <div>${d3}</div>
+      </td>
+      <td style="text-align:center">
+        <div style="font-size:10px;color:#90A4AE">${t.eh_tarix||'—'}</div>
+        <div>${d4}</div>
+      </td>
+      <td style="text-align:center">
+        <div style="font-size:10px;color:#90A4AE">${t.basofis_tarix||'—'}</div>
+        <div>${d5}</div>
+      </td>
+      <td style="text-align:center">
+        <div style="font-size:10px;color:#90A4AE">${t.secChk_tarix||'—'}</div>
+        <div>${d6}</div>
+      </td>
+      <td style="text-align:center">
+        <div style="font-size:10px;color:#90A4AE">${t.pep_tarix||'—'}</div>
+        <div>${d7}</div>
+      </td>
+      <td style="text-align:center">
+        <div style="font-size:10px;color:#90A4AE">${t.muqavile_tarix||'—'}</div>
+        <div>${d8}</div>
+      </td>
+      <td>${pill(csName)}</td>
+      <td>${pill(t.status)}</td>
+      <td style="font-size:11px">${t.kurator}</td>
+      <td style="font-size:11px;color:${isLate?'var(--red)':'var(--gray)'}">${t.deadline||'—'}</td>
+      <td style="text-align:center">${fd(dAgo(t.muraciyet_tarix||t.tarix))}</td>
+      <td onclick="event.stopPropagation()" style="white-space:nowrap">
+        <button class="btn btn-sm" onclick="openTransferModal(${t.id})">✏</button>
+        <button class="btn btn-sm btn-danger" onclick="if(confirm('Silinsin?')){transfers=transfers.filter(x=>x.id!==${t.id});saveAll();renderTransferList();renderDashboard();updateBadges()}">🗑</button>
+      </td></tr>`;
+  }).join('')||'<tr><td colspan="19" style="text-align:center;color:#ccc;padding:16px">Transfer tapılmadı</td></tr>';
+}
+
+function showTransferDetail(id){
+  const t=transfers.find(x=>x.id===id);if(!t)return;
+  ge('transfer-list-wrap').style.display='none';ge('transfer-detail').style.display='';
+  const pct=workflowStages.length?Math.round((t.currentStage/workflowStages.length)*100):0;
+  ge('transfer-detail').innerHTML=`
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button class="btn" onclick="ge('transfer-detail').style.display='none';ge('transfer-list-wrap').style.display=''">← Geri</button>
+      <button class="btn btn-primary btn-sm" onclick="openTransferModal(${t.id})">✏ Düzəliş et</button>
+      <button class="btn btn-danger btn-sm" onclick="if(confirm('Silinsin?')){transfers=transfers.filter(x=>x.id!==${t.id});saveAll();goPage('transfer')}">🗑 Sil</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <div class="detail-panel">
+          <div class="detail-title">${t.ad}</div><div class="detail-sub">${t.funksiya} | ${t.departament||''}</div>
+          <div class="detail-grid">
+            <div class="detail-field"><div class="detail-field-label">Müraciət növü</div><div class="detail-field-val">${t.muraciyet||'—'}</div></div>
+            <div class="detail-field"><div class="detail-field-label">FIN</div><div class="detail-field-val">${t.fin||'—'}</div></div>
+            <div class="detail-field"><div class="detail-field-label">Tabel №</div><div class="detail-field-val">${t.tabel||'—'}</div></div>
+            <div class="detail-field"><div class="detail-field-label">Azneft vəzifəsi</div><div class="detail-field-val">${t.azneftVezife||'—'}</div></div>
+            <div class="detail-field"><div class="detail-field-label">SUOM vəzifəsi</div><div class="detail-field-val">${t.suomVezife||'—'}</div></div>
+            <div class="detail-field"><div class="detail-field-label">Keçid strukturu vəzifəsi</div><div class="detail-field-val">${t.kecidVezife||'—'}</div></div>
+            <div class="detail-field"><div class="detail-field-label">Cari kateqoriya</div><div class="detail-field-val">${t.currentKat||'—'}</div></div>
+            <div class="detail-field"><div class="detail-field-label">Planlaşdırılan kateqoriya</div><div class="detail-field-val">${t.plannedKat||'—'}</div></div>
+            <div class="detail-field"><div class="detail-field-label">Status</div><div class="detail-field-val">${pill(t.status)}</div></div>
+            <div class="detail-field"><div class="detail-field-label">Kurator</div><div class="detail-field-val">${t.kurator}</div></div>
+            <div class="detail-field"><div class="detail-field-label">HRBP</div><div class="detail-field-val">${t.hrbp||'—'}</div></div>
+            <div class="detail-field"><div class="detail-field-label">Deadline</div><div class="detail-field-val" style="color:${t.deadline&&dAgo(t.deadline)>0?'var(--red)':'inherit'}">${t.deadline||'—'}</div></div>
+            <div class="detail-field" style="grid-column:1/-1"><div class="detail-field-label">Progress</div><div class="detail-field-val">
+              <div class="progress" style="margin-bottom:4px"><div class="progress-bar" style="width:${pct}%;background:${pct>75?'#2E7D32':pct>40?'#F57F17':'#1565C0'}"></div></div>
+              <span style="font-size:11px">${pct}% — Mərhələ ${t.currentStage+1}/${workflowStages.length}: ${workflowStages[t.currentStage]?.name||'—'}</span>
+            </div></div>
+          </div>
+          ${t.esaslandirma?`<div class="section-box"><div class="section-box-title">Əsaslandırma</div><div style="font-size:12px">${t.esaslandirma}</div></div>`:''}
+          <div class="section-box">
+            <div class="section-box-title">📅 Transfer Mərhələ İzləmə — Tarix & Gün</div>
+            ${[
+              {n:"1. Transfer müraciəti",d:t.muraciyet_tarix,nx:t.hrbp_tarix,color:"#1565C0"},
+              {n:"2. HRBP baxışı",d:t.hrbp_tarix,nx:t.funkReh_tarix,color:"#1E6091"},
+              {n:"3. Funksiya rəhbərinin razılığı",d:t.funkReh_tarix,nx:t.eh_tarix,color:"#00695C"},
+              {n:"4. Əmək haqqı razılaşdırılması",d:t.eh_tarix,nx:t.basofis_tarix,color:"#F57F17"},
+              {n:"5. Baş Ofis razılığı",d:t.basofis_tarix,nx:t.secChk_tarix,color:"#6A1B9A"},
+              {n:"6. Security Check",d:t.secChk_tarix,nx:t.pep_tarix,color:"#4A148C"},
+              {n:"7. PEP Check",d:t.pep_tarix,nx:t.muqavile_tarix,color:"#880E4F"},
+              {n:"8. Müqavilənin hazırlanması",d:t.muqavile_tarix,nx:t.ishe_baslama_tarix,color:"#1B5E20"},
+              {n:"9. İşə başladı",d:t.ishe_baslama_tarix,nx:null,color:"#2E7D32"},
+            ].filter(s=>s.d).map((s,i)=>`
+              <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #F5F5F5">
+                <div style="width:22px;height:22px;border-radius:50%;background:${s.color};color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+                <div style="flex:1;font-size:12px;font-weight:500">${s.n}</div>
+                <div style="font-size:11px;color:#90A4AE;min-width:90px">${s.d}</div>
+                <div style="min-width:45px;text-align:right">${s.nx?fd(dBw(s.d,s.nx),true):'<span style="color:#ccc">—</span>'}</div>
+              </div>`).join('')}
+            <div style="display:flex;justify-content:flex-end;margin-top:8px;font-size:12px;font-weight:600;color:var(--dark)">
+              Ümumi: ${fd(dAgo(t.muraciyet_tarix||t.tarix))}
+            </div>
+          </div>
+        </div>
+        <div class="detail-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-size:13px;font-weight:600">Tasklar</div>
+            <button class="btn btn-sm btn-primary" onclick="openTrTaskModal(${t.id})">+ Task əlavə et</button>
+          </div>
+          <div id="trtasks-${t.id}">${renderTrTasks(t)}</div>
+        </div>
+      </div>
+      <div>
+        <div class="detail-panel">
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px">Workflow Mərhələləri</div>
+          ${workflowStages.map((ws,i)=>`<div class="stage-item">
+            <div class="stage-dot ${i<t.currentStage?'done':i===t.currentStage?'active':'pending'}">${i<t.currentStage?'✓':i+1}</div>
+            <div style="flex:1;padding-top:2px">
+              <div style="font-size:12px;font-weight:${i===t.currentStage?'600':'400'};color:${i===t.currentStage?'var(--mid)':i<t.currentStage?'var(--green)':'var(--gray)'}">${ws.name}</div>
+              <div style="font-size:10px;color:#90A4AE;margin-top:1px">${i<t.currentStage?'Tamamlandı':i===t.currentStage?'Cari mərhələ':'Gözləyir'}</div>
+            </div>
+            ${i===t.currentStage?`<button class="btn btn-sm btn-primary" onclick="advanceTr(${t.id})">Növbəti →</button>`:''}
+          </div>`).join('')}
+        </div>
+        <div class="detail-panel">
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px">📜 Timeline</div>
+          ${(t.log||[]).length?t.log.map(l=>`<div class="log-item"><div style="width:8px;height:8px;border-radius:50%;background:var(--mid);flex-shrink:0;margin-top:3px"></div><div style="flex:1"><div style="font-size:11px;font-weight:600">${l.ne}</div><div style="font-size:10px;color:#90A4AE">${l.kim} | ${l.tarix}${l.qeyd?' | '+l.qeyd:''}</div></div></div>`).join(''):'<div style="color:#ccc;font-size:12px;text-align:center;padding:12px">Log yoxdur</div>'}
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderTrTasks(t){
+  if(!t.tasks||!t.tasks.length)return '<div style="color:#ccc;font-size:12px;text-align:center;padding:10px">Task yoxdur</div>';
+  return t.tasks.map(tk=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #F5F5F5">
+    <span style="font-size:14px;cursor:pointer" onclick="toggleTrTask(${t.id},${tk.id})">${tk.done?'✅':'○'}</span>
+    <span style="flex:1;font-size:12px;${tk.done?'text-decoration:line-through;color:#90A4AE':''}">${tk.name}</span>
+    <span style="font-size:10px;color:#90A4AE">${tk.mesul||''}</span>
+    <span style="font-size:10px;color:${tk.deadline&&dAgo(tk.deadline)>0?'var(--red)':'#90A4AE'}">${tk.deadline||''}</span>
+    <button class="btn btn-sm btn-danger" onclick="deleteTrTask(${t.id},${tk.id})">🗑</button>
+  </div>`).join('');
+}
+function toggleTrTask(tid,tkid){const t=transfers.find(x=>x.id===tid);if(!t)return;const tk=t.tasks.find(x=>x.id===tkid);if(tk)tk.done=!tk.done;saveAll();const el=ge(`trtasks-${tid}`);if(el)el.innerHTML=renderTrTasks(t);}
+function deleteTrTask(tid,tkid){if(!confirm('Silinsin?'))return;const t=transfers.find(x=>x.id===tid);if(!t)return;t.tasks=t.tasks.filter(x=>x.id!==tkid);saveAll();const el=ge(`trtasks-${tid}`);if(el)el.innerHTML=renderTrTasks(t);}
+function advanceTr(id){
+  const t=transfers.find(x=>x.id===id);if(!t||t.currentStage>=workflowStages.length-1)return;
+  const old=workflowStages[t.currentStage]?.name||'';
+  t.currentStage++;
+  const nw=workflowStages[t.currentStage]?.name||'';
+  t.log=[...(t.log||[]),{tarix:new Date().toISOString().split('T')[0],kim:"HR",ne:`Mərhələ irəlilədi: ${old} → ${nw}`,qeyd:''}];
+  addAudit(t.ad,'Mərhələ irəlilədi',old,nw);
+  saveAll();showTransferDetail(id);
+}
+
+function renderTransferDashboard(){
+  const total=transfers.length,done=transfers.filter(t=>t.status==='Tamamlandı').length,act=transfers.filter(t=>t.status==='Davam edir').length,wait=transfers.filter(t=>t.status==='Gözləyir').length,sec=transfers.filter(t=>t.status==='Security Check-də').length,pep=transfers.filter(t=>t.status==='PEP-də').length,baso=transfers.filter(t=>t.status==='Baş Ofis Təsdiqində').length,muq=transfers.filter(t=>t.status==='Müqavilə Gözləyir').length,late=transfers.filter(t=>t.deadline&&dAgo(t.deadline)>0&&!['Tamamlandı','Rədd edildi'].includes(t.status)).length;
+  ge('tr-kpi-grid').innerHTML=`<div class="kpi" onclick="trF.status='';renderTransferList();switchTrTab('list',document.querySelector('#page-transfer .tab'))"><div class="kpi-label">Ümumi</div><div class="kpi-val">${total}</div></div><div class="kpi green"><div class="kpi-label">Tamamlandı</div><div class="kpi-val">${done}</div></div><div class="kpi"><div class="kpi-label">Davam edir</div><div class="kpi-val">${act}</div></div><div class="kpi amber"><div class="kpi-label">Gözləyir</div><div class="kpi-val">${wait}</div></div><div class="kpi purple"><div class="kpi-label">Security Check</div><div class="kpi-val">${sec}</div></div><div class="kpi purple"><div class="kpi-label">PEP-də</div><div class="kpi-val">${pep}</div></div><div class="kpi teal"><div class="kpi-label">Baş Ofis</div><div class="kpi-val">${baso}</div></div><div class="kpi teal"><div class="kpi-label">Müqavilə</div><div class="kpi-val">${muq}</div></div><div class="kpi red"><div class="kpi-label">Gecikmiş</div><div class="kpi-val">${late}</div></div>`;
+  const byF={};transfers.forEach(t=>{byF[t.funksiya]=(byF[t.funksiya]||0)+1;});
+  const maxF=Math.max(...Object.values(byF),1);
+  const C=['#1565C0','#2E7D32','#F57F17','#6A1B9A','#C62828'];
+  ge('tr-funk-chart').innerHTML=Object.entries(byF).sort((a,b)=>b[1]-a[1]).map(([s,n],i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><div style="width:100px;font-size:10px;color:#90A4AE;text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s}</div><div class="progress" style="flex:1"><div class="progress-bar" style="width:${Math.round(n/maxF*100)}%;background:${C[i%C.length]}"></div></div><div style="width:18px;font-size:11px;font-weight:600">${n}</div></div>`).join('');
+  const byS={};transfers.forEach(t=>{byS[t.status]=(byS[t.status]||0)+1;});
+  const maxS=Math.max(...Object.values(byS),1);
+  ge('tr-status-chart').innerHTML=Object.entries(byS).sort((a,b)=>b[1]-a[1]).map(([s,n],i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><div style="width:120px;font-size:10px;color:#90A4AE;text-align:right;flex-shrink:0">${s}</div><div class="progress" style="flex:1"><div class="progress-bar" style="width:${Math.round(n/maxS*100)}%;background:${C[i%C.length]}"></div></div><div style="width:18px;font-size:11px;font-weight:600">${n}</div></div>`).join('');
+  const lateData=transfers.filter(t=>t.deadline&&dAgo(t.deadline)>0&&!['Tamamlandı','Rədd edildi'].includes(t.status));
+  ge('tr-late-tbody').innerHTML=lateData.map(t=>`<tr class="clickable crit" onclick="showTransferDetail(${t.id})"><td style="font-weight:600">${t.ad}</td><td>${pill(workflowStages[t.currentStage]?.name||'—')}</td><td style="color:var(--red)">${t.deadline}</td><td style="color:var(--red);font-weight:600">${dAgo(t.deadline)} gün</td><td style="font-size:11px">${t.kurator}</td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center;color:#ccc;padding:12px">Gecikmiş transfer yoxdur ✓</td></tr>';
+}
+
+function renderWfStages(){
+  ge('wf-stages-list').innerHTML=`<div class="table-wrap"><table class="tbl"><thead><tr><th style="width:50px">Sıra</th><th>Mərhələ adı</th><th style="width:100px">Əməliyyat</th></tr></thead><tbody>
+    ${workflowStages.map((ws,i)=>`<tr><td style="text-align:center;color:#90A4AE;font-weight:600">${i+1}</td>
+      <td><input class="form-control" value="${ws.name}" onchange="updateWf(${ws.id},this.value)" style="border:none;background:transparent;padding:4px 0"></td>
+      <td style="white-space:nowrap">
+        ${i>0?`<button class="btn btn-sm" onclick="moveWf(${i},-1)">↑</button>`:''}
+        ${i<workflowStages.length-1?`<button class="btn btn-sm" onclick="moveWf(${i},1)">↓</button>`:''}
+        <button class="btn btn-sm btn-danger" onclick="deleteWf(${ws.id})">🗑</button>
+      </td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+function addWfStage(){const n=prompt('Yeni mərhələ adı:');if(!n||!n.trim())return;workflowStages.push({id:nid(workflowStages),name:n.trim()});saveAll();renderWfStages();}
+function updateWf(id,val){const s=workflowStages.find(x=>x.id===id);if(s)s.name=val;saveAll();}
+function moveWf(idx,dir){const ni=idx+dir;if(ni<0||ni>=workflowStages.length)return;[workflowStages[idx],workflowStages[ni]]=[workflowStages[ni],workflowStages[idx]];saveAll();renderWfStages();}
+function deleteWf(id){if(!confirm('Silinsin?'))return;workflowStages=workflowStages.filter(x=>x.id!==id);saveAll();renderWfStages();}
+
+// PROJECTS
+// PROJECT STAGES DATA — hər layihənin öz mərhələ statusları
+let projectStageStatuses = {};
+function saveProjStageStatuses(){saveAll();}
+const STAGE_STATUSES = ['Planlanır','Davam edir','Tamamlandı','Blok','Gözləyir'];
+const STAGE_ST_COLORS = {'Planlanır':'#90A4AE','Davam edir':'#1565C0','Tamamlandı':'#2E7D32','Blok':'#C62828','Gözləyir':'#F57F17'};
+
+function renderProjects(){
+  ge('projects-list').innerHTML=projects.map(p=>{
+    const pct=p.stages.length?Math.round(p.doneCount/p.stages.length*100):0;
+    const pts=tasks.filter(t=>t.layihe===p.ad);
+    const psKey = 'p'+p.id;
+    const stMap = projectStageStatuses[psKey] || {};
+    return `<div class="card">
+      <div class="card-header">
+        <span class="card-title">${p.ad}</span>
+        <div style="display:flex;gap:4px;align-items:center">
+          <span style="font-size:11px;color:#90A4AE">${p.kurator}</span>
+          ${p.deadline?`<span style="font-size:11px;color:#90A4AE">📅 ${p.deadline}</span>`:''}
+          <button class="btn btn-sm btn-primary" onclick="openProjStageModal(${p.id})">+ Mərhələ</button>
+          <button class="btn btn-sm" onclick="openProjectModal(${p.id})">✏</button>
+          <button class="btn btn-sm btn-danger" onclick="if(confirm('Silinsin?')){projects=projects.filter(x=>x.id!==${p.id});saveAll();renderProjects()}">🗑</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div class="progress" style="flex:1"><div class="progress-bar" style="width:${pct}%;background:${pct>75?'#2E7D32':pct>40?'#F57F17':'#1565C0'}"></div></div>
+          <span style="font-size:13px;font-weight:700;color:${pct>75?'#2E7D32':pct>40?'#F57F17':'#1565C0'}">${pct}%</span>
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;font-weight:600;color:#546E7A;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Mərhələlər</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            ${p.stages.map((s,i)=>{
+              const isDone=i<p.doneCount;
+              const isAct=i===p.doneCount;
+              const stVal=stMap[s]||(isDone?'Tamamlandı':isAct?'Davam edir':'Planlanır');
+              const stColor=STAGE_ST_COLORS[stVal]||'#90A4AE';
+              return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#F8F9FA;border-radius:6px;border-left:3px solid ${stColor}">
+                <span style="width:22px;height:22px;border-radius:50%;background:${isDone?'#2E7D32':isAct?'#1565C0':'#E0E0E0'};color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${isDone?'✓':i+1}</span>
+                <span style="flex:1;font-size:12px;font-weight:500">${s}</span>
+                <select onchange="updateProjStageSt(${p.id},'${s}',this.value)" class="form-control" style="width:110px;font-size:11px;height:26px;padding:2px 6px">
+                  ${STAGE_STATUSES.map(st=>`<option value="${st}"${stVal===st?' selected':''}>${st}</option>`).join('')}
+                </select>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+        ${pts.length?`<div style="padding-top:10px;border-top:1px solid #F5F5F5">
+          <div style="font-size:11px;font-weight:600;color:#546E7A;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Bu layihəyə aid tasklar (${pts.length})</div>
+          <div class="table-wrap" style="margin:0"><table class="tbl" style="min-width:0">
+            <thead><tr><th>Tapşırıq</th><th>Kurator</th><th>Məsul</th><th>Prioritet</th><th>Status</th><th>Gün</th></tr></thead>
+            <tbody>${pts.map(t=>`<tr class="clickable" onclick="goPage('tasks');setTimeout(()=>showTaskDetail(${t.id}),50)">
+              <td style="font-size:11px">${t.tapşırıq.substring(0,40)}</td>
+              <td style="font-size:10px">${t.kurator}</td>
+              <td style="font-size:10px">${t.mesul||'—'}</td>
+              <td>${pill(t.prioritet)}</td>
+              <td>${pill(t.status)}</td>
+              <td>${fd(dAgo(t.tarix))}</td>
+            </tr>`).join('')}</tbody>
+          </table></div>
+        </div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateProjStageSt(pid, stageName, val){
+  const key='p'+pid;
+  if(!projectStageStatuses[key])projectStageStatuses[key]={};
+  projectStageStatuses[key][stageName]=val;
+  saveProjStageStatuses();
+  // Also update doneCount based on completed stages
+  const p=projects.find(x=>x.id===pid);
+  if(p){
+    const stMap=projectStageStatuses[key];
+    p.doneCount=p.stages.filter(s=>stMap[s]==='Tamamlandı').length;
+    saveAll();
+  }
+  renderMiniDash(curPage);
+}
+
+function openProjStageModal(pid){
+  const p=projects.find(x=>x.id===pid);if(!p)return;
+  const key='p'+pid;const stMap=projectStageStatuses[key]||{};
+  showModal('Mərhələ idarəetməsi: '+p.ad.substring(0,40),`
+    <div style="margin-bottom:10px;font-size:12px;color:#90A4AE">Yeni mərhələ əlavə edin, silin, adını dəyişdirin və statusunu seçin.</div>
+    <div id="pst-list">${p.stages.map((s,i)=>`
+      <div style="display:flex;gap:8px;margin-bottom:6px;align-items:center">
+        <span style="width:20px;text-align:center;font-size:11px;color:#90A4AE;flex-shrink:0">${i+1}</span>
+        <input class="form-control pst-name" value="${s}" style="flex:1;font-size:12px">
+        <select class="form-control pst-status" style="width:115px;font-size:11px">
+          ${STAGE_STATUSES.map(st=>`<option value="${st}"${(stMap[s]||'Planlanır')===st?' selected':''}>${st}</option>`).join('')}
+        </select>
+        <button class="btn btn-sm btn-danger" onclick="this.closest('div').remove()">🗑</button>
+      </div>`).join('')}
+    </div>
+    <button class="btn" onclick="addProjStageRow()" style="margin-top:8px">+ Mərhələ əlavə et</button>`,
+  ()=>{
+    const rows=[...document.querySelectorAll('.pst-name')].map((el,i)=>({
+      name:el.value.trim(),
+      status:document.querySelectorAll('.pst-status')[i]?.value||'Planlanır'
+    })).filter(r=>r.name);
+    p.stages=rows.map(r=>r.name);
+    const newStMap={};rows.forEach(r=>{newStMap[r.name]=r.status;});
+    projectStageStatuses[key]=newStMap;
+    p.doneCount=rows.filter(r=>r.status==='Tamamlandı').length;
+    saveAll();saveProjStageStatuses();
+    closeModal();renderProjects();renderMiniDash(curPage);
+  });
+}
+function addProjStageRow(){
+  const list=ge('pst-list');const i=list.children.length;
+  const d=document.createElement('div');
+  d.style.cssText='display:flex;gap:8px;margin-bottom:6px;align-items:center';
+  d.innerHTML=`<span style="width:20px;text-align:center;font-size:11px;color:#90A4AE;flex-shrink:0">${i+1}</span><input class="form-control pst-name" value="Yeni mərhələ" style="flex:1;font-size:12px"><select class="form-control pst-status" style="width:115px;font-size:11px">${STAGE_STATUSES.map(st=>`<option>${st}</option>`).join('')}</select><button class="btn btn-sm btn-danger" onclick="this.closest('div').remove()">🗑</button>`;
+  list.appendChild(d);d.querySelector('input').focus();d.querySelector('input').select();
+}
+
+
+// KURATORS
+function renderKurators(){
+  const km={};
+  tasks.forEach(t=>{
+    if(!km[t.kurator])km[t.kurator]={total:0,done:0,open:0,late:0,crit:0};
+    km[t.kurator].total++;
+    if(t.status==='Tamamlandı')km[t.kurator].done++;
+    else{km[t.kurator].open++;if(t.tarix&&dAgo(t.tarix)>14)km[t.kurator].late++;if(t.prioritet==='Kritik')km[t.kurator].crit++;}
+  });
+  const rows=Object.entries(km).sort((a,b)=>b[1].total-a[1].total);
+  ge('kurator-cards').innerHTML=rows.map(([k,v])=>{
+    const pct=v.total?Math.round(v.done/v.total*100):0;
+    return `<div class="kpi" style="border-left-color:${pct>75?'#2E7D32':pct>50?'#F57F17':'#C62828'};cursor:pointer" onclick="showKuratorDetail('${k.replace(/'/g,"\'")}')">
+      <div class="kpi-label" style="font-size:10px">${k}</div>
+      <div class="kpi-val" style="font-size:18px">${v.total}</div>
+      <div style="font-size:10px;color:#90A4AE;margin:3px 0">✓${v.done} ●${v.open} ⚠${v.late}</div>
+      <div class="progress"><div class="progress-bar" style="width:${pct}%;background:${pct>75?'#2E7D32':pct>50?'#F57F17':'#C62828'}"></div></div>
+      <div style="font-size:10px;color:#1565C0;margin-top:4px;text-align:center">Daxil ol →</div>
+    </div>`;
+  }).join('');
+  ge('kurator-tbody').innerHTML=rows.map(([k,v])=>{
+    const pct=v.total?Math.round(v.done/v.total*100):0;
+    return `<tr>
+      <td style="font-weight:600;cursor:pointer;color:var(--mid)" onclick="showKuratorDetail('${k.replace(/'/g,"\'")}'">${k}</td>
+      <td>${v.total}</td><td style="color:#2E7D32">${v.done}</td><td style="color:#1565C0">${v.open}</td>
+      <td style="color:${v.late>0?'#C62828':'#90A4AE'}">${v.late}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar" style="width:${pct}%;background:${pct>75?'#2E7D32':pct>50?'#F57F17':'#C62828'}"></div></div><span style="font-size:11px;font-weight:600">${pct}%</span></div></td>
+      <td><button class="btn btn-sm" onclick="showKuratorDetail('${k.replace(/'/g,"\'")}')">→ Daxil ol</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function showKuratorDetail(kurator){
+  ge('kurator-overview').style.display='none';
+  ge('kurator-detail').style.display='';
+  const kt=tasks.filter(t=>t.kurator===kurator);
+  const open=kt.filter(t=>t.status!=='Tamamlandı');
+  const done=kt.filter(t=>t.status==='Tamamlandı');
+  const crit=open.filter(t=>t.prioritet==='Kritik');
+  const late=open.filter(t=>t.tarix&&dAgo(t.tarix)>14);
+  const pct=kt.length?Math.round(done.length/kt.length*100):0;
+  ge('kurator-detail').innerHTML=`
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+      <button class="btn" onclick="ge('kurator-detail').style.display='none';ge('kurator-overview').style.display=''">← Geri</button>
+      <span style="font-size:15px;font-weight:700;color:var(--dark)">${kurator}</span>
+      <button class="btn btn-export btn-sm" onclick="exportKuratorExcel('${kurator.replace(/'/g,"\'")}')">⬇ Excel</button>
+    </div>
+    <!-- KPI row -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      ${[{l:'Ümumi task',v:kt.length,c:'#1565C0'},{l:'Açıq',v:open.length,c:'#F57F17'},{l:'Tamamlandı',v:done.length,c:'#2E7D32'},{l:'Kritik',v:crit.length,c:'#C62828'},{l:'Gecikən',v:late.length,c:'#C62828'},{l:'Tamamlanma',v:pct+'%',c:'#00695C'}].map(x=>`
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;background:#F8F9FA;border:1px solid var(--border)">
+          <span style="font-size:15px;font-weight:700;color:${x.c}">${x.v}</span>
+          <span style="font-size:10px;color:#90A4AE">${x.l}</span>
+        </div>`).join('')}
+    </div>
+    <!-- Tabs -->
+    <div style="display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:12px">
+      <div class="tab active" id="kt-tab-open" onclick="showKurTab('open','${kurator.replace(/'/g,"\'")}',this)">🔵 Açıq / Davam edir (${open.length})</div>
+      <div class="tab" id="kt-tab-crit" onclick="showKurTab('crit','${kurator.replace(/'/g,"\'")}',this)">🔴 Kritik (${crit.length})</div>
+      <div class="tab" id="kt-tab-late" onclick="showKurTab('late','${kurator.replace(/'/g,"\'")}',this)">⚠ Gecikən (${late.length})</div>
+      <div class="tab" id="kt-tab-done" onclick="showKurTab('done','${kurator.replace(/'/g,"\'")}',this)">🟢 Tamamlandı (${done.length})</div>
+      <div class="tab" id="kt-tab-all" onclick="showKurTab('all','${kurator.replace(/'/g,"\'")}',this)">📋 Hamısı (${kt.length})</div>
+    </div>
+    <div id="kt-task-list"></div>
+  `;
+  showKurTab('open', kurator, ge('kt-tab-open'));
+}
+
+function showKurTab(tab, kurator, el){
+  document.querySelectorAll('#kurator-detail .tab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const kt=tasks.filter(t=>t.kurator===kurator);
+  let data;
+  if(tab==='open')data=kt.filter(t=>t.status!=='Tamamlandı');
+  else if(tab==='crit')data=kt.filter(t=>t.prioritet==='Kritik'&&t.status!=='Tamamlandı');
+  else if(tab==='late')data=kt.filter(t=>t.status!=='Tamamlandı'&&t.tarix&&dAgo(t.tarix)>14);
+  else if(tab==='done')data=kt.filter(t=>t.status==='Tamamlandı');
+  else data=kt;
+  ge('kt-task-list').innerHTML=`
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr><th>Mövzu</th><th>Tapşırıq</th><th>Kimdən</th><th>İdarə</th><th>Funksiya</th><th>Məsul</th><th>Prioritet</th><th>Status</th><th>Tarix</th><th>Gün</th><th>Layihə</th></tr></thead>
+        <tbody>${data.map(t=>`
+          <tr class="clickable${t.prioritet==='Kritik'&&t.status!=='Tamamlandı'?' crit':''}" onclick="navigateTo('tasks');setTimeout(()=>showTaskDetail(${t.id}),50)">
+            <td>${pill(t.movzu)}</td>
+            <td style="font-size:11px;max-width:160px" title="${t.tapşırıq}">${t.tapşırıq.substring(0,45)}${t.tapşırıq.length>45?'…':''}</td>
+            <td style="font-size:11px">${t.kimden}</td>
+            <td style="font-size:11px">${t.idarə||'—'}</td>
+            <td style="font-size:11px">${t.funksiya||'—'}</td>
+            <td style="font-size:11px">${t.mesul||'—'}</td>
+            <td>${pill(t.prioritet)}</td>
+            <td>${pill(t.status)}</td>
+            <td style="font-size:11px">${t.tarix||'—'}</td>
+            <td>${t.status!=='Tamamlandı'?fd(dAgo(t.tarix)):'<span style="color:#2E7D32">✓</span>'}</td>
+            <td style="font-size:10px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.layihe&&t.layihe!=='—'?t.layihe.substring(0,20)+'…':'—'}</td>
+          </tr>`).join('')||'<tr><td colspan="11" style="text-align:center;color:#ccc;padding:16px">Bu kateqoriyada task yoxdur</td></tr>'}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function exportKuratorExcel(kurator){
+  const kt=tasks.filter(t=>t.kurator===kurator);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Mövzu','Tapşırıq','Kimdən','İdarə','Funksiya','F.Rəhbər','Kurator','Məsul','Prioritet','Status','Tarix','Açıq gün','Layihə','Blok','Qeyd'],
+    ...kt.map(t=>[t.movzu,t.tapşırıq,t.kimden,t.idarə,t.funksiya,t.funksiyaRehberi||'',t.kurator,t.mesul||'',t.prioritet,t.status,t.tarix,t.status!=='Tamamlandı'?dAgo(t.tarix)||'':'✓',t.layihe,t.blok,t.qeyd])
+  ]),kurator.substring(0,31));
+  XLSX.writeFile(wb,`Kurator_${kurator.substring(0,20)}_${new Date().toISOString().split('T')[0]}.xlsx`);
+}
+
+
+
+// FUNKSIYALAR
+let actFunk='ümumi';
+let actFunkDetail=null; // currently drilled-in funksiya/idarə
+
+function renderFunksiyalar(){
+  // Sadəcə 3 tab: Ümumi, Funksiyalar, İdarələr
+  ge('funk-tabs').innerHTML=`
+    <div class="tab${actFunk==='ümumi'?' active':''}" onclick="setFunkTab('ümumi')">🔷 Ümumi</div>
+    <div class="tab${actFunk==='funksiyalar'?' active':''}" onclick="setFunkTab('funksiyalar')">🏭 Funksiyalar</div>
+    <div class="tab${actFunk==='idarələr'?' active':''}" onclick="setFunkTab('idarələr')">🏛 İdarələr</div>`;
+
+  if(actFunkDetail){
+    // DRILL-DOWN VIEW — specific funksiya or idarə
+    const isIdarə=actFunk==='idarələr';
+    const ft=tasks.filter(t=>isIdarə?t.idarə===actFunkDetail:t.funksiya===actFunkDetail);
+    const fc=candidates.filter(c=>isIdarə?c.idarə===actFunkDetail:c.funksiya===actFunkDetail);
+    const ftOpen=ft.filter(t=>t.status!=='Tamamlandı');
+    const ftDone=ft.filter(t=>t.status==='Tamamlandı');
+    const fcActive=fc.filter(c=>!['İşə Başladı','Rədd'].includes(c.status));
+    const fcStarted=fc.filter(c=>c.status==='İşə Başladı');
+
+    ge('funk-content').innerHTML=`
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <button class="btn" onclick="actFunkDetail=null;renderFunksiyalar()">← Geri</button>
+        <span style="font-size:15px;font-weight:700;color:var(--dark)">${actFunkDetail}</span>
+        <span class="pill pill-blue">${ft.length} task</span>
+        <span class="pill pill-green">${fc.length} namizəd</span>
+        <div style="margin-left:auto">
+          <button class="btn btn-export btn-sm" onclick="exportFunkExcel('${actFunkDetail.replace(/'/g,"\'")}','${isIdarə?'idarə':'funksiya'}')">⬇ Excel</button>
+        </div>
+      </div>
+
+      <!-- KPI bar -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;background:#F8F9FA;border:1px solid var(--border)"><span style="font-size:13px">✅</span><span style="font-size:16px;font-weight:700;color:#1565C0">${ft.length}</span><span style="font-size:10px;color:#90A4AE">Ümumi task</span></div>
+        <div style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;background:#FFF9C4;border:1px solid #FFE082"><span style="font-size:13px">🟡</span><span style="font-size:16px;font-weight:700;color:#F57F17">${ftOpen.length}</span><span style="font-size:10px;color:#90A4AE">Açıq task</span></div>
+        <div style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;background:#E8F5E9;border:1px solid #A5D6A7"><span style="font-size:13px">🟢</span><span style="font-size:16px;font-weight:700;color:#2E7D32">${ftDone.length}</span><span style="font-size:10px;color:#90A4AE">Tamamlanan</span></div>
+        <div style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;background:#F3E5F5;border:1px solid #CE93D8"><span style="font-size:13px">👥</span><span style="font-size:16px;font-weight:700;color:#6A1B9A">${fcActive.length}</span><span style="font-size:10px;color:#90A4AE">Aktiv namizəd</span></div>
+        <div style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;background:#E8F5E9;border:1px solid #A5D6A7"><span style="font-size:13px">🏁</span><span style="font-size:16px;font-weight:700;color:#2E7D32">${fcStarted.length}</span><span style="font-size:10px;color:#90A4AE">İşə başladı</span></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <!-- TASKS -->
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px">Tasklar (${ft.length})</div>
+          <div class="table-wrap">
+            <table class="tbl" style="min-width:0">
+              <thead><tr><th>Tapşırıq</th><th>Mövzu</th><th>Kurator</th><th>Məsul</th><th>Prioritet</th><th>Status</th><th>Gün</th></tr></thead>
+              <tbody>
+                ${ft.map(t=>`<tr class="clickable${t.prioritet==='Kritik'&&t.status!=='Tamamlandı'?' crit':''}" onclick="navigateTo('tasks');setTimeout(()=>showTaskDetail(${t.id}),50)">
+                  <td style="font-size:11px;max-width:150px" title="${t.tapşırıq}">${t.tapşırıq.substring(0,40)}${t.tapşırıq.length>40?'…':''}</td>
+                  <td>${pill(t.movzu)}</td>
+                  <td style="font-size:10px">${t.kurator}</td>
+                  <td style="font-size:10px">${t.mesul||'—'}</td>
+                  <td>${pill(t.prioritet)}</td>
+                  <td>${pill(t.status)}</td>
+                  <td>${t.status!=='Tamamlandı'?fd(dAgo(t.tarix)):'<span style="color:#2E7D32">✓</span>'}</td>
+                </tr>`).join('')||'<tr><td colspan="7" style="text-align:center;color:#ccc;padding:14px">Task yoxdur</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- CANDIDATES -->
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px">İşə Qəbul — Namizədlər (${fc.length})</div>
+          <div class="table-wrap">
+            <table class="tbl" style="min-width:0">
+              <thead><tr><th>Ad Soyad</th><th>Vəzifə</th><th>Kurator</th><th>Məsul</th><th>Status</th><th>Gün</th></tr></thead>
+              <tbody>
+                ${fc.map(c=>`<tr class="clickable${['Security Check — Sənəd','Security Check — Yoxlama','Salary Negotiation'].includes(c.status)?' crit':''}" onclick="navigateTo('pipeline');setTimeout(()=>showCandDetail(${c.id}),50)">
+                  <td style="font-weight:600;font-size:11px">${c.ad}</td>
+                  <td style="font-size:10px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.vezife}">${c.vezife}</td>
+                  <td style="font-size:10px">${c.kurator}</td>
+                  <td style="font-size:10px">${c.mesul||'—'}</td>
+                  <td>${pill(c.status)}</td>
+                  <td>${fd(dAgo(c.hrbpDate))}</td>
+                </tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:#ccc;padding:14px">Namizəd yoxdur</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // OVERVIEW views — 3 tab
+  if(actFunk==='ümumi'){
+    // Combined: all funksiya + idarə cards
+    const allF={};FUNKS.forEach(f=>{const ft=tasks.filter(t=>t.funksiya===f),fc=candidates.filter(c=>c.funksiya===f);if(ft.length>0||fc.length>0)allF[f]={tasks:ft,cands:fc};});
+    const allI={};IDARELER.forEach(id=>{const it=tasks.filter(t=>t.idarə===id),ic=candidates.filter(c=>c.idarə===id);if(it.length>0||ic.length>0)allI[id]={tasks:it,cands:ic};});
+    const totalT=tasks.length,openT=tasks.filter(t=>t.status!=='Tamamlandı').length,doneT=tasks.filter(t=>t.status==='Tamamlandı').length;
+    const totalC=candidates.length,actC=candidates.filter(c=>!['İşə Başladı','Rədd'].includes(c.status)).length;
+    ge('funk-content').innerHTML=`
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;background:#F8F9FA;border:1px solid var(--border)"><span style="font-size:14px;font-weight:700;color:#1565C0">${totalT}</span><span style="font-size:10px;color:#90A4AE">Ümumi task</span></div>
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;background:#FFF9C4;border:1px solid #FFE082"><span style="font-size:14px;font-weight:700;color:#F57F17">${openT}</span><span style="font-size:10px;color:#90A4AE">Açıq</span></div>
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;background:#E8F5E9;border:1px solid #A5D6A7"><span style="font-size:14px;font-weight:700;color:#2E7D32">${doneT}</span><span style="font-size:10px;color:#90A4AE">Tamamlandı</span></div>
+        <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;background:#F3E5F5;border:1px solid #CE93D8"><span style="font-size:14px;font-weight:700;color:#6A1B9A">${actC}</span><span style="font-size:10px;color:#90A4AE">Aktiv namizəd</span></div>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--dark);margin-bottom:8px">🏭 Funksiyalar</div>
+      ${buildFunkCards(Object.entries(allF),'drillFunk')}
+      ${Object.keys(allI).length?`<div style="font-size:12px;font-weight:600;color:var(--dark);margin:14px 0 8px">🏛 İdarələr</div>${buildFunkCards(Object.entries(allI),'drillIdarə')}`:''}
+    `;
+  }
+  else if(actFunk==='funksiyalar'){
+    const byF={};FUNKS.forEach(f=>{const ft=tasks.filter(t=>t.funksiya===f),fc=candidates.filter(c=>c.funksiya===f);if(ft.length>0||fc.length>0)byF[f]={tasks:ft,cands:fc};});
+    ge('funk-content').innerHTML=buildFunkCards(Object.entries(byF),'drillFunk');
+  }
+  else if(actFunk==='idarələr'){
+    const byI={};IDARELER.forEach(id=>{const it=tasks.filter(t=>t.idarə===id),ic=candidates.filter(c=>c.idarə===id);if(it.length>0||ic.length>0)byI[id]={tasks:it,cands:ic};});
+    ge('funk-content').innerHTML=buildFunkCards(Object.entries(byI),'drillIdarə');
+  }
+}
+
+function setFunkTab(t){actFunk=t;actFunkDetail=null;renderFunksiyalar();}
+function drillFunk(f){actFunk='funksiyalar';actFunkDetail=f;renderFunksiyalar();}
+function drillIdarə(id){actFunk='idarələr';actFunkDetail=id;renderFunksiyalar();}
+
+function buildFunkCards(entries, isDrillFn){
+  return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px">
+    ${entries.map(([name,d])=>{
+      const open=d.tasks.filter(t=>t.status!=='Tamamlandı');
+      const done=d.tasks.filter(t=>t.status==='Tamamlandı');
+      const crit=open.filter(t=>t.prioritet==='Kritik').length;
+      const actC=d.cands.filter(c=>!['İşə Başladı','Rədd'].includes(c.status)).length;
+      const pct=d.tasks.length?Math.round(done.length/d.tasks.length*100):0;
+      return `<div class="card" style="cursor:pointer" onclick="${isDrillFn}('${name.replace(/'/g,"\\'")}')">
+        <div class="card-header">
+          <span class="card-title" style="font-size:12px">${name}</span>
+          <div style="display:flex;gap:4px">
+            <span class="pill ${crit>0?'pill-red':'pill-blue'}">${open.length} task</span>
+            <span class="pill pill-purple">${actC} nam.</span>
+          </div>
+        </div>
+        <div class="card-body" style="padding:8px">
+          <div style="margin-bottom:6px"><div class="progress"><div class="progress-bar" style="width:${pct}%;background:${pct>75?'#2E7D32':pct>40?'#F57F17':'#1565C0'}"></div></div></div>
+          ${open.slice(0,3).map(t=>`<div style="display:flex;gap:5px;padding:3px 0;border-bottom:1px solid #F5F5F5;font-size:11px">${pill(t.prioritet)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.tapşırıq.substring(0,28)}</span>${pill(t.status)}</div>`).join('')}
+          ${open.length>3?`<div style="font-size:10px;color:#90A4AE;padding-top:3px">+${open.length-3} daha...</div>`:''}
+          <div style="margin-top:6px;padding-top:6px;border-top:1px solid #F5F5F5;font-size:10px;display:flex;justify-content:space-between">
+            <span style="color:#90A4AE">✓ ${done.length} tamamlandı</span>
+            <span style="color:#1565C0;font-weight:600">Daxil ol →</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+
+
+function exportFunkExcel(name, type){
+  const isIdarə=type==='idarə';
+  const ft=tasks.filter(t=>isIdarə?t.idarə===name:t.funksiya===name);
+  const fc=candidates.filter(c=>isIdarə?c.idarə===name:c.funksiya===name);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Mövzu','Tapşırıq','Kimdən','İdarə','Funksiya','Funksiya Rəhbəri','Kurator','Məsul','Prioritet','Status','Tarix','Layihə','Blok','Qeyd'],
+    ...ft.map(t=>[t.movzu,t.tapşırıq,t.kimden,t.idarə,t.funksiya,t.funksiyaRehberi||'',t.kurator,t.mesul||'',t.prioritet,t.status,t.tarix,t.layihe,t.blok,t.qeyd])
+  ]),'Tasklar');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Ad','Vəzifə','Funksiya','İdarə','Kurator','Məsul','Kimdən','Funksiya Rəhbəri','Status','HRBP tarixi','Müsahibə tarixi','Əmək haqqı tarixi','Security Check','PEP','İşə başlama','Offer','Qeyd'],
+    ...fc.map(c=>[c.ad,c.vezife,c.funksiya,c.idarə,c.kurator,c.mesul||'',c.kimdən||'',c.funksiyaRehberi||'',c.status,c.hrbpDate,c.musibaheDate,c.ehDate,c.secSenedDate||'',c.pepFormaDate||'',c.isheBaslamaDate,c.offer,c.qeyd])
+  ]),'İşə Qəbul');
+  XLSX.writeFile(wb,`${name.substring(0,30)}_${new Date().toISOString().split('T')[0]}.xlsx`);
+}
+
+
+// MODALS
+function showModal(title,body,saveFn,lg=false){
+  ge('modal-title').textContent=title;ge('modal-body').innerHTML=body;
+  ge('modal-box').className='modal'+(lg?' modal-lg':'');
+  ge('modal-overlay').style.display='flex';ge('modal-save-btn').onclick=saveFn;
+}
+function closeModal(){ge('modal-overlay').style.display='none';}
+
+function openCandModal(id){
+  const c=id?candidates.find(x=>x.id===id):null;
+  const v=(k,d='')=>c&&c[k]!==undefined?c[k]:d;
+  showModal(id?'Namizədi düzəliş et':'Yeni namizəd',`
+    <div class="form-row"><div class="form-group"><label class="form-label">Ad Soyad</label><input class="form-control" id="c-ad" value="${v('ad')}"></div><div class="form-group"><label class="form-label">Vəzifə</label><input class="form-control" id="c-vez" value="${v('vezife')}"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Funksiya</label>${sel(FUNKS,v('funksiya','Drilling & Well Operations'),'c-funk')}</div><div class="form-group"><label class="form-label">İdarə</label>${sel(IDARELER,v('idarə','SUOM'),'c-id')}</div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Kurator</label>${sel(KURATORLAR,v('kurator'),'c-kur')}</div><div class="form-group"><label class="form-label">Məsul şəxs</label>${sel(MESUL,v('mesul','Nigar Əsədullayeva'),'c-mes')}</div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Kimdən daxil olub</label><input class="form-control" id="c-kim" value="${v('kimdən')}"></div><div class="form-group"><label class="form-label">Funksiya rəhbəri</label><input class="form-control" id="c-freh" value="${v('funksiyaRehberi')}"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Status</label>${sel(ST_PIPE,v('status','CV Göndərildi'),'c-st')}</div><div class="form-group"><label class="form-label">Offer</label><input class="form-control" id="c-off" value="${v('offer')}"></div></div>
+    <div class="section-box" style="background:#F8F9FA;border-radius:8px;padding:10px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;margin-bottom:8px;text-transform:uppercase;color:var(--dark)">📅 Mərhələ Tarixləri</div>
+    <div class="form-row-3"><div class="form-group"><label class="form-label">HRBP Daxil</label><input type="date" class="form-control" id="c-hrbp" value="${v('hrbpDate')}"></div><div class="form-group"><label class="form-label">İşə Qəbula ötür</label><input type="date" class="form-control" id="c-iq" value="${v('iqDate')}"></div><div class="form-group"><label class="form-label">Müsahibə</label><input type="date" class="form-control" id="c-mus" value="${v('musibaheDate')}"></div></div>
+    <div class="form-row-3"><div class="form-group"><label class="form-label">Əmək haqqı</label><input type="date" class="form-control" id="c-eh" value="${v('ehDate')}"></div><div class="form-group"><label class="form-label">Baş ofis</label><input type="date" class="form-control" id="c-baso" value="${v('basofisDate')}"></div><div class="form-group"><label class="form-label">İşə başlama</label><input type="date" class="form-control" id="c-ishe" value="${v('isheBaslamaDate')}"></div></div></div>
+    <div class="section-box" style="background:#F3E5F5;border-radius:8px;padding:10px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;margin-bottom:8px;text-transform:uppercase;color:#6A1B9A">🔒 Security Check</div>
+    <div class="form-row-3"><div class="form-group"><label class="form-label">Sənəd göndərildi</label><input type="date" class="form-control" id="c-scs" value="${v('secSenedDate')}"></div><div class="form-group"><label class="form-label">Orqan yoxlaması</label><input type="date" class="form-control" id="c-scy" value="${v('secYoxlamaDate')}"></div><div class="form-group"><label class="form-label">Nəticə gəldi</label><input type="date" class="form-control" id="c-scn" value="${v('secNeticeDate')}"></div></div></div>
+    <div class="section-box" style="background:#E8EAF6;border-radius:8px;padding:10px;margin-bottom:10px"><div style="font-size:11px;font-weight:700;margin-bottom:8px;text-transform:uppercase;color:#1A237E">📋 PEP</div>
+    <div class="form-row-3"><div class="form-group"><label class="form-label">PEP Forması</label><input type="date" class="form-control" id="c-pf" value="${v('pepFormaDate')}"></div><div class="form-group"><label class="form-label">Rəhbər imzası</label><input type="date" class="form-control" id="c-pr" value="${v('pepRehberDate')}"></div><div class="form-group"><label class="form-label">Baş Ofis</label><input type="date" class="form-control" id="c-pb" value="${v('pepBasoDate')}"></div></div></div>
+    <div class="form-group"><label class="form-label">Qeyd</label><textarea class="form-control" id="c-qeyd">${v('qeyd')}</textarea></div>`,
+  ()=>{
+    const obj={id:id||nid(candidates),ad:g('c-ad'),vezife:g('c-vez'),funksiya:g('c-funk'),idarə:g('c-id'),kurator:g('c-kur'),mesul:g('c-mes'),kimdən:g('c-kim'),funksiyaRehberi:g('c-freh'),status:g('c-st'),offer:g('c-off'),hrbpDate:g('c-hrbp'),iqDate:g('c-iq'),musibaheDate:g('c-mus'),ehDate:g('c-eh'),basofisDate:g('c-baso'),isheBaslamaDate:g('c-ishe'),secSenedDate:g('c-scs'),secYoxlamaDate:g('c-scy'),secNeticeDate:g('c-scn'),pepFormaDate:g('c-pf'),pepRehberDate:g('c-pr'),pepBasoDate:g('c-pb'),qeyd:g('c-qeyd')};
+    if(id)candidates=candidates.map(x=>x.id===id?obj:x);else candidates.push(obj);
+    saveAll();closeModal();renderPipeline();renderDashboard();updateBadges();
+  });
+}
+
+function openVacModal(id){
+  const v_=id?vacancies.find(x=>x.id===id):null;
+  const v=(k,d='')=>v_&&v_[k]!==undefined?v_[k]:d;
+  showModal(id?'Vakansiyayı düzəliş et':'Yeni vakansiya',`
+    <div class="form-row"><div class="form-group"><label class="form-label">Vəzifə</label><input class="form-control" id="v-vez" value="${v('vezife')}"></div><div class="form-group"><label class="form-label">Funksiya</label>${sel(FUNKS,v('funksiya'),'v-funk')}</div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">İdarə</label>${sel(IDARELER,v('idarə','SUOM'),'v-id')}</div><div class="form-group"><label class="form-label">Tələb edən</label><input class="form-control" id="v-tel" value="${v('teleb')}"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">HRBP Daxil</label><input type="date" class="form-control" id="v-hrbp" value="${v('hrbpDate')}"></div><div class="form-group"><label class="form-label">Doldurulma dövrü</label><input class="form-control" id="v-dovr" value="${v('dovr')}" placeholder="məs. 2026-Q2"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Status</label>${sel(ST_VAC,v('status','Aktiv'),'v-st')}</div><div class="form-group"><label class="form-label">Deadline</label><input type="date" class="form-control" id="v-dl" value="${v('deadline')}"></div></div>
+    <div class="form-group"><label class="form-label">Qeyd</label><textarea class="form-control" id="v-qeyd">${v('qeyd')}</textarea></div>`,
+  ()=>{
+    const obj={id:id||nid(vacancies),vezife:g('v-vez'),funksiya:g('v-funk'),idarə:g('v-id'),teleb:g('v-tel'),hrbpDate:g('v-hrbp'),dovr:g('v-dovr'),status:g('v-st'),deadline:g('v-dl'),qeyd:g('v-qeyd')};
+    if(id)vacancies=vacancies.map(x=>x.id===id?obj:x);else vacancies.push(obj);
+    saveAll();closeModal();renderVacancies();
+  });
+}
+
+function openTaskModal(id){
+  const t_=id?tasks.find(x=>x.id===id):null;
+  const v=(k,d='')=>t_&&t_[k]!==undefined?t_[k]:d;
+  showModal(id?'Taskı düzəliş et':'Yeni task',`
+    <div class="form-row"><div class="form-group"><label class="form-label">Mövzu</label>${sel(MOVZULAR,v('movzu','İşə qəbul'),'t-mov')}</div><div class="form-group"><label class="form-label">Prioritet</label>${sel(PRIOR,v('prioritet','Yüksək'),'t-pri')}</div></div>
+    <div class="form-group"><label class="form-label">Tapşırıq</label><textarea class="form-control" id="t-tap">${v('tapşırıq')}</textarea></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Kimdən daxil olub</label><input class="form-control" id="t-kim" value="${v('kimden')}"></div><div class="form-group"><label class="form-label">İdarə</label>${sel(IDARELER,v('idarə','SUOM'),'t-id')}</div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Funksiya</label>${sel(FUNKS,v('funksiya'),'t-funk')}</div><div class="form-group"><label class="form-label">Funksiya rəhbəri</label><input class="form-control" id="t-freh" value="${v('funksiyaRehberi')}"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Kurator</label>${sel(KURATORLAR,v('kurator'),'t-kur')}</div><div class="form-group"><label class="form-label">Məsul şəxs</label>${sel(MESUL,v('mesul','Nigar Əsədullayeva'),'t-mes')}</div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Status</label>${sel(ST_TASK,v('status','Açıq'),'t-st')}</div><div class="form-group"><label class="form-label">Tarix</label><input type="date" class="form-control" id="t-tar" value="${v('tarix')}"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Layihə</label>${sel(LAYIHELER,v('layihe','—'),'t-lay')}</div><div class="form-group"><label class="form-label">Blok səbəbi</label><input class="form-control" id="t-blok" value="${v('blok')}"></div></div>
+    <div class="form-group"><label class="form-label">Məsul mail (bildiriş üçün)</label><input class="form-control" id="t-mail" value="${v('mail')}" placeholder="mesul@email.com"></div>
+    <div class="form-group"><label class="form-label">Qeyd</label><textarea class="form-control" id="t-qeyd">${v('qeyd')}</textarea></div>`,
+  ()=>{
+    const mail=g('t-mail');
+    const obj={id:id||nid(tasks),movzu:g('t-mov'),tapşırıq:g('t-tap'),kimden:g('t-kim'),idarə:g('t-id'),funksiya:g('t-funk'),funksiyaRehberi:g('t-freh'),kurator:g('t-kur'),mesul:g('t-mes'),prioritet:g('t-pri'),status:g('t-st'),tarix:g('t-tar'),layihe:g('t-lay'),blok:g('t-blok'),mail,qeyd:g('t-qeyd')};
+    if(mail&&mail.includes('@')){const s=encodeURIComponent(`BP Dashboard — Yeni Task: ${obj.tapşırıq.substring(0,50)}`);const b=encodeURIComponent(`Salam,\n\nYeni task:\nTapşırıq: ${obj.tapşırıq}\nPrioritet: ${obj.prioritet}\nStatus: ${obj.status}\nKurator: ${obj.kurator}\nMəsul: ${obj.mesul}`);window.open(`mailto:${mail}?subject=${s}&body=${b}`);}
+    if(id)tasks=tasks.map(x=>x.id===id?obj:x);else tasks.push(obj);
+    saveAll();closeModal();renderTasks();renderDashboard();updateBadges();
+  });
+}
+
+function openOnboardingModal(id){
+  const o=id?onboardings.find(x=>x.id===id):null;
+  const v=(k,d='')=>o&&o[k]!==undefined?o[k]:d;
+  showModal(id?'Onboarding düzəliş et':'Yeni onboarding',`
+    <div class="form-row"><div class="form-group"><label class="form-label">Ad Soyad</label><input class="form-control" id="ob-ad" value="${v('ad')}"></div><div class="form-group"><label class="form-label">Vəzifə</label><input class="form-control" id="ob-vez" value="${v('vezife')}"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Start tarixi</label><input type="date" class="form-control" id="ob-st" value="${v('start')}"></div><div class="form-group"><label class="form-label">Status</label>${sel(['Başlanmayıb','Natamam','Davam edir','Tamamlandı'],v('status','Başlanmayıb'),'ob-sts')}</div></div>
+    <div style="background:#F8F9FA;border-radius:8px;padding:10px;margin-top:8px">${obStages.map(s=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><label style="flex:1;font-size:12px">${s}</label><select class="form-control ob-stg" data-s="${s}" style="width:130px"><option value="">—</option><option value="✅"${(o&&o.stages&&o.stages[s]==='✅')?' selected':''}>✅ Tamamlandı</option><option value="Gözlənilir"${(o&&o.stages&&o.stages[s]==='Gözlənilir')?' selected':''}>⏳ Gözlənilir</option><option value="Planlanır"${(o&&o.stages&&o.stages[s]==='Planlanır')?' selected':''}>📅 Planlanır</option></select></div>`).join('')}</div>`,
+  ()=>{
+    const stages={};document.querySelectorAll('.ob-stg').forEach(el=>{stages[el.dataset.s]=el.value;});
+    const obj={id:id||nid(onboardings),ad:g('ob-ad'),vezife:g('ob-vez'),start:g('ob-st'),stages,status:g('ob-sts')};
+    if(id)onboardings=onboardings.map(x=>x.id===id?obj:x);else onboardings.push(obj);
+    saveAll();closeModal();renderOnboarding();
+  });
+}
+function editObStages(){
+  showModal('Onboarding Mərhələlərini Düzəliş Et',`<div id="obs-list">${obStages.map(s=>`<div style="display:flex;gap:8px;margin-bottom:8px"><input class="form-control obs-inp" value="${s}" style="flex:1"><button class="btn btn-sm btn-danger" onclick="this.parentNode.remove()">🗑</button></div>`).join('')}</div><button class="btn" onclick="ge('obs-list').insertAdjacentHTML('beforeend','<div style=\\'display:flex;gap:8px;margin-bottom:8px\\'><input class=\\'form-control obs-inp\\' value=\\'Yeni mərhələ\\' style=\\'flex:1\\'><button class=\\'btn btn-sm btn-danger\\' onclick=\\'this.parentNode.remove()\\'>🗑</button></div>')" style="margin-top:6px">+ Əlavə et</button>`,
+  ()=>{obStages=[...document.querySelectorAll('.obs-inp')].map(x=>x.value).filter(x=>x.trim());saveAll();closeModal();renderOnboarding();});
+}
+
+function openTransferModal(id){
+  const t_=id?transfers.find(x=>x.id===id):null;
+  const v=(k,d='')=>t_&&t_[k]!==undefined?t_[k]:d;
+  showModal(id?'Transfer düzəliş et':'Yeni transfer',`
+    <div class="form-row"><div class="form-group"><label class="form-label">Ad Soyad</label><input class="form-control" id="tr-ad" value="${v('ad')}"></div><div class="form-group"><label class="form-label">Müraciət növü</label>${sel(TR_MUR,v('muraciyet'),'tr-mur')}</div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">FIN</label><input class="form-control" id="tr-fin" value="${v('fin')}"></div><div class="form-group"><label class="form-label">Tabel №</label><input class="form-control" id="tr-tab" value="${v('tabel')}"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Funksiya</label>${sel(FUNKS,v('funksiya'),'tr-funk')}</div><div class="form-group"><label class="form-label">Departament</label><input class="form-control" id="tr-dep" value="${v('departament')}"></div></div>
+    <div class="form-group"><label class="form-label">Struktur bölmə</label><input class="form-control" id="tr-str" value="${v('struktur')}"></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Azneft vəzifəsi</label><input class="form-control" id="tr-av" value="${v('azneftVezife')}"></div><div class="form-group"><label class="form-label">SUOM vəzifəsi</label><input class="form-control" id="tr-sv" value="${v('suomVezife')}"></div></div>
+    <div class="form-group"><label class="form-label">Keçid strukturunda vəzifəsi</label><input class="form-control" id="tr-kv" value="${v('kecidVezife')}"></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Cari kateqoriya</label>${sel(TR_KAT,v('currentKat','Specialist'),'tr-ck')}</div><div class="form-group"><label class="form-label">Planlaşdırılan kateqoriya</label>${sel(TR_KAT,v('plannedKat','Specialist'),'tr-pk')}</div></div>
+    <div class="form-group"><label class="form-label">Əsaslandırma</label><textarea class="form-control" id="tr-esas">${v('esaslandirma')}</textarea></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Kurator</label>${sel(KURATORLAR,v('kurator'),'tr-kur')}</div><div class="form-group"><label class="form-label">HRBP</label>${sel(MESUL,v('hrbp','Nigar Əsədullayeva'),'tr-hrbp')}</div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Status</label>${sel(TR_ST,v('status','Gözləyir'),'tr-st')}</div><div class="form-group"><label class="form-label">Cari mərhələ (sıra №, 0-dan)</label><input type="number" class="form-control" id="tr-cs" value="${v('currentStage',0)}" min="0" max="${workflowStages.length-1}"></div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Deadline</label><input type="date" class="form-control" id="tr-dl" value="${v('deadline')}"></div></div>
+    <div style="background:#F8F9FA;border-radius:8px;padding:10px;margin-bottom:10px">
+      <div style="font-size:11px;font-weight:700;margin-bottom:8px;text-transform:uppercase;color:var(--dark)">📅 Mərhələ Tarixləri</div>
+      <div class="form-row-3">
+        <div class="form-group"><label class="form-label">1. Transfer müraciəti</label><input type="date" class="form-control" id="tr-d1" value="${v('muraciyet_tarix')}"></div>
+        <div class="form-group"><label class="form-label">2. HRBP baxışı</label><input type="date" class="form-control" id="tr-d2" value="${v('hrbp_tarix')}"></div>
+        <div class="form-group"><label class="form-label">3. Funksiya rəhbəri</label><input type="date" class="form-control" id="tr-d3" value="${v('funkReh_tarix')}"></div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label class="form-label">4. Əmək haqqı</label><input type="date" class="form-control" id="tr-d4" value="${v('eh_tarix')}"></div>
+        <div class="form-group"><label class="form-label">5. Baş Ofis razılığı</label><input type="date" class="form-control" id="tr-d5" value="${v('basofis_tarix')}"></div>
+        <div class="form-group"><label class="form-label">6. Security Check</label><input type="date" class="form-control" id="tr-d6" value="${v('secChk_tarix')}"></div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label class="form-label">7. PEP Check</label><input type="date" class="form-control" id="tr-d7" value="${v('pep_tarix')}"></div>
+        <div class="form-group"><label class="form-label">8. Müqavilə hazırlığı</label><input type="date" class="form-control" id="tr-d8" value="${v('muqavile_tarix')}"></div>
+        <div class="form-group"><label class="form-label">9. İşə başladı</label><input type="date" class="form-control" id="tr-d9" value="${v('ishe_baslama_tarix')}"></div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Qeyd</label><textarea class="form-control" id="tr-qeyd">${v('qeyd')}</textarea></div>`,
+  ()=>{
+    const oldSt=t_?t_.status:'';const newSt=g('tr-st');
+    const obj={id:id||nid(transfers),ad:g('tr-ad'),muraciyet:g('tr-mur'),fin:g('tr-fin'),tabel:g('tr-tab'),funksiya:g('tr-funk'),departament:g('tr-dep'),struktur:g('tr-str'),azneftVezife:g('tr-av'),suomVezife:g('tr-sv'),kecidVezife:g('tr-kv'),currentKat:g('tr-ck'),plannedKat:g('tr-pk'),esaslandirma:g('tr-esas'),kurator:g('tr-kur'),hrbp:g('tr-hrbp'),mesul:g('tr-hrbp'),status:newSt,currentStage:parseInt(g('tr-cs'))||0,
+      tarix:g('tr-d1')||new Date().toISOString().split('T')[0],deadline:g('tr-dl'),
+      muraciyet_tarix:g('tr-d1'),hrbp_tarix:g('tr-d2'),funkReh_tarix:g('tr-d3'),eh_tarix:g('tr-d4'),basofis_tarix:g('tr-d5'),secChk_tarix:g('tr-d6'),pep_tarix:g('tr-d7'),muqavile_tarix:g('tr-d8'),ishe_baslama_tarix:g('tr-d9'),
+      qeyd:g('tr-qeyd'),tasks:t_?t_.tasks:[],log:t_?t_.log:[]};
+    if(oldSt&&oldSt!==newSt){obj.log=[...obj.log,{tarix:new Date().toISOString().split('T')[0],kim:"HR",ne:`Status dəyişdi: ${oldSt} → ${newSt}`,qeyd:''}];addAudit(obj.ad,'Status dəyişdi',oldSt,newSt);}
+    if(!id){obj.log=[{tarix:new Date().toISOString().split('T')[0],kim:"HR",ne:"Transfer müraciəti yaradıldı",qeyd:''}];}
+    if(id)transfers=transfers.map(x=>x.id===id?obj:x);else transfers.push(obj);
+    saveAll();closeModal();renderTransferList();renderTransferFilters();renderDashboard();updateBadges();
+  },true);
+}
+
+function openTrTaskModal(tid){
+  showModal('Transfer Taskı Əlavə et',`
+    <div class="form-group"><label class="form-label">Task adı</label><input class="form-control" id="trt-name" placeholder="məs. Müqavilə hazırlanacaq"></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Məsul şəxs</label>${sel(MESUL,'Nigar Əsədullayeva','trt-mes')}</div><div class="form-group"><label class="form-label">Deadline</label><input type="date" class="form-control" id="trt-dl"></div></div>`,
+  ()=>{
+    const t=transfers.find(x=>x.id===tid);if(!t)return;
+    t.tasks=[...(t.tasks||[]),{id:nid(t.tasks||[]),name:g('trt-name'),mesul:g('trt-mes'),deadline:g('trt-dl'),done:false}];
+    saveAll();closeModal();showTransferDetail(tid);
+  });
+}
+
+function openProjectModal(id){
+  const p_=id?projects.find(x=>x.id===id):null;
+  const v=(k,d='')=>p_&&p_[k]!==undefined?p_[k]:d;
+  showModal(id?'Layihəni düzəliş et':'Yeni layihə',`
+    <div class="form-group"><label class="form-label">Layihə adı</label><input class="form-control" id="p-ad" value="${v('ad')}"></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Kurator</label>${sel(KURATORLAR,v('kurator'),'p-kur')}</div><div class="form-group"><label class="form-label">Status</label>${sel(['Planlanır','Davam edir','Tamamlandı','Blok'],v('status','Davam edir'),'p-st')}</div></div>
+    <div class="form-row"><div class="form-group"><label class="form-label">Deadline</label><input type="date" class="form-control" id="p-dl" value="${v('deadline')}"></div><div class="form-group"><label class="form-label">Tamamlanan mərhələ sayı</label><input type="number" class="form-control" id="p-done" value="${v('doneCount',0)}" min="0"></div></div>
+    <div class="form-group"><label class="form-label">Mərhələlər (hər sətirdə bir)</label><textarea class="form-control" id="p-stgs" rows="4">${v('stages',[]).join('\n')}</textarea></div>
+    <div class="form-group"><label class="form-label">Qeyd</label><textarea class="form-control" id="p-qeyd">${v('qeyd')}</textarea></div>`,
+  ()=>{
+    const obj={id:id||nid(projects),ad:g('p-ad'),kurator:g('p-kur'),status:g('p-st'),deadline:g('p-dl'),doneCount:parseInt(g('p-done'))||0,stages:g('p-stgs').split('\n').filter(x=>x.trim()),qeyd:g('p-qeyd')};
+    if(id)projects=projects.map(x=>x.id===id?obj:x);else projects.push(obj);
+    saveAll();closeModal();renderProjects();
+  });
+}
+
+// EXPORT
+function exportExcel(){
+  const wb=XLSX.utils.book_new();
+
+  // 1. Namizəd Pipeline — tam tarix tracking
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Ad','Vəzifə','Funksiya','İdarə','Kurator','Məsul','Kimdən','Funksiya Rəhbəri','Status',
+     'HRBP Daxil','İşə Qəbula ötür','Müsahibə','Əmək haqqı','Baş Ofis',
+     'Sec Sənəd','Sec Yoxlama','Sec Nəticə','PEP Forma','PEP Rəhbər','PEP Baş Ofis',
+     'İşə Başlama','Offer','Cəmi gün','Qeyd'],
+    ...candidates.map(c=>[c.ad,c.vezife,c.funksiya,c.idarə,c.kurator,c.mesul||'',c.kimdən||'',c.funksiyaRehberi||'',c.status,
+      c.hrbpDate,c.iqDate,c.musibaheDate,c.ehDate,c.basofisDate,
+      c.secSenedDate,c.secYoxlamaDate,c.secNeticeDate,c.pepFormaDate,c.pepRehberDate,c.pepBasoDate,
+      c.isheBaslamaDate,c.offer,dAgo(c.hrbpDate)||'',c.qeyd])
+  ]),'Namizəd Pipeline');
+
+  // 2. Task İzləmə
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Mövzu','Tapşırıq','Kimdən daxil olub','İdarə','Funksiya','Funksiya Rəhbəri','Kurator','Məsul','Prioritet','Status','Tarix','Açıq gün','Layihə','Blok','Mail','Qeyd'],
+    ...tasks.map(t=>[t.movzu,t.tapşırıq,t.kimden,t.idarə,t.funksiya,t.funksiyaRehberi||'',t.kurator,t.mesul||'',t.prioritet,t.status,t.tarix,t.status!=='Tamamlandı'?dAgo(t.tarix)||'':'✓',t.layihe,t.blok,t.mail||'',t.qeyd])
+  ]),'Task İzləmə');
+
+  // 3. Transfer Siyahısı
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Ad','Müraciət növü','FIN','Tabel','Funksiya','Departament','Struktur bölmə',
+     'Azneft vəzifəsi','SUOM vəzifəsi','Keçid vəzifəsi','Cari kateqoriya','Planlaşdırılan kateqoriya',
+     'Əsaslandırma','Status','Cari mərhələ','Kurator','HRBP','Deadline','Başlama tarixi','Cəmi gün','Qeyd'],
+    ...transfers.map(t=>[t.ad,t.muraciyet,t.fin,t.tabel,t.funksiya,t.departament,t.struktur,
+      t.azneftVezife,t.suomVezife,t.kecidVezife,t.currentKat,t.plannedKat,
+      t.esaslandirma,t.status,workflowStages[t.currentStage]?.name||'',
+      t.kurator,t.hrbp,t.deadline,t.muraciyet_tarix||t.tarix,dAgo(t.muraciyet_tarix||t.tarix)||'',t.qeyd])
+  ]),'Transferlər');
+
+  // 4. Transfer Mərhələ İzləmə
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Ad','1.Müraciət','2.HRBP','HRBP gün','3.Funk.Rəh.','Funk.Rəh. gün','4.Əmək haqqı','ƏH gün',
+     '5.Baş Ofis','BaşOfis gün','6.Sec.Check','SecChk gün','7.PEP','PEP gün',
+     '8.Müqavilə','Müq. gün','9.İşəBaşlama','Cəmi gün'],
+    ...transfers.map(t=>[t.ad,
+      t.muraciyet_tarix||'',t.hrbp_tarix||'',dBw(t.muraciyet_tarix,t.hrbp_tarix)||'',
+      t.funkReh_tarix||'',dBw(t.hrbp_tarix,t.funkReh_tarix)||'',
+      t.eh_tarix||'',dBw(t.funkReh_tarix,t.eh_tarix)||'',
+      t.basofis_tarix||'',dBw(t.eh_tarix,t.basofis_tarix)||'',
+      t.secChk_tarix||'',dBw(t.basofis_tarix,t.secChk_tarix)||'',
+      t.pep_tarix||'',dBw(t.secChk_tarix,t.pep_tarix)||'',
+      t.muqavile_tarix||'',dBw(t.pep_tarix,t.muqavile_tarix)||'',
+      t.ishe_baslama_tarix||'',dAgo(t.muraciyet_tarix||t.tarix)||''])
+  ]),'Transfer Mərhələ İzləmə');
+
+  // 5. Vakansiyalar
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Vəzifə','Funksiya','İdarə','Tələb edən','HRBP Daxil','Doldurulma dövrü','Status','Deadline','HRBP-də gün','Qeyd'],
+    ...vacancies.map(v=>[v.vezife,v.funksiya,v.idarə,v.teleb,v.hrbpDate,v.dovr,v.status,v.deadline,dAgo(v.hrbpDate)||'',v.qeyd])
+  ]),'Vakansiyalar');
+
+  // 6. Onboarding
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Ad','Vəzifə','İşəBaşlama tarixi',...obStages,'Ümumi status'],
+    ...onboardings.map(o=>[o.ad,o.vezife,o.start,...obStages.map(s=>o.stages[s]||''),o.status])
+  ]),'Onboarding');
+
+  // 7. Layihələr — hər mərhələ statusu ilə
+  const projRows=[['Layihə adı','Kurator','Status','Deadline','Mərhələ №','Mərhələ adı','Mərhələ statusu','Progress %']];
+  projects.forEach(p=>{
+    const psKey='p'+p.id;
+    const stMap=projectStageStatuses[psKey]||{};
+    const pct=p.stages.length?Math.round(p.doneCount/p.stages.length*100):0;
+    if(p.stages.length===0){
+      projRows.push([p.ad,p.kurator,p.status,p.deadline,'','','',pct+'%']);
+    } else {
+      p.stages.forEach((s,i)=>{
+        projRows.push([i===0?p.ad:'',i===0?p.kurator:'',i===0?p.status:'',i===0?p.deadline:'',i+1,s,stMap[s]||'Planlanır',i===0?pct+'%':'']);
+      });
+    }
+  });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(projRows),'Layihələr');
+
+  // 8. Kurator Performansı
+  const km={};
+  tasks.forEach(t=>{if(!km[t.kurator])km[t.kurator]={total:0,done:0,open:0,late:0,tasks:[]};km[t.kurator].total++;km[t.kurator].tasks.push(t);if(t.status==='Tamamlandı')km[t.kurator].done++;else{km[t.kurator].open++;if(t.tarix&&dAgo(t.tarix)>14)km[t.kurator].late++;}});
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Kurator','Ümumi task','Tamamlandı','Açıq','Gecikən','Tamamlanma %'],
+    ...Object.entries(km).sort((a,b)=>b[1].total-a[1].total).map(([k,v])=>[k,v.total,v.done,v.open,v.late,v.total?Math.round(v.done/v.total*100)+'%':'0%'])
+  ]),'Kurator Performansı');
+
+  // 9. Funksiya üzrə xülasə
+  const funkRows=[['Funksiya','Ümumi task','Açıq task','Tamamlandı','Kritik','Aktiv namizəd','İşə başladı']];
+  FUNKS.forEach(f=>{
+    const ft=tasks.filter(t=>t.funksiya===f);
+    const fc=candidates.filter(c=>c.funksiya===f);
+    if(ft.length>0||fc.length>0){
+      funkRows.push([f,ft.length,ft.filter(t=>t.status!=='Tamamlandı').length,ft.filter(t=>t.status==='Tamamlandı').length,
+        ft.filter(t=>t.prioritet==='Kritik'&&t.status!=='Tamamlandı').length,
+        fc.filter(c=>!['İşə Başladı','Rədd'].includes(c.status)).length,
+        fc.filter(c=>c.status==='İşə Başladı').length]);
+    }
+  });
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(funkRows),'Funksiya Xülasəsi');
+
+  // 10. Audit Log
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Tarix','Saat','Şəxs','Əməliyyat','Köhnə dəyər','Yeni dəyər'],
+    ...auditLog.map(a=>[a.tarix.split('T')[0],a.tarix.split('T')[1]?.split('.')[0]||'',a.kim,a.ne,a.eski||'',a.yeni||''])
+  ]),'Audit Log');
+
+  XLSX.writeFile(wb,`BP_Dashboard_${new Date().toISOString().split('T')[0]}.xlsx`);
+}
+
+function exportTrExcel(){
+  const wb=XLSX.utils.book_new();
+  // Main list
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Ad','Müraciət növü','FIN','Tabel','Funksiya','Departament','Struktur','Azneft vəzifəsi','SUOM vəzifəsi','Keçid vəzifəsi','Cari kateqoriya','Planlaşdırılan kateqoriya','Əsaslandırma','Status','Cari mərhələ','Kurator','HRBP','Deadline','Qeyd'],
+    ...transfers.map(t=>[t.ad,t.muraciyet,t.fin,t.tabel,t.funksiya,t.departament,t.struktur,t.azneftVezife,t.suomVezife,t.kecidVezife,t.currentKat,t.plannedKat,t.esaslandirma,t.status,workflowStages[t.currentStage]?.name||'',t.kurator,t.hrbp,t.deadline,t.qeyd])
+  ]),'Transfer Siyahısı');
+  // Stage tracking (like pipeline)
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Ad','1.Müraciət tarixi','2.HRBP tarixi','HRBP-də gün','3.FunkRəh tarixi','FunkRəh-də gün','4.ƏH tarixi','ƏH-də gün','5.BaşOfis tarixi','BaşOfis-də gün','6.SecChk tarixi','SecChk-də gün','7.PEP tarixi','PEP-də gün','8.Müqavilə tarixi','Müqavilə-də gün','9.İşəBaşlama tarixi','Cəmi gün'],
+    ...transfers.map(t=>[
+      t.ad,
+      t.muraciyet_tarix||'',
+      t.hrbp_tarix||'',dBw(t.muraciyet_tarix,t.hrbp_tarix)||'',
+      t.funkReh_tarix||'',dBw(t.hrbp_tarix,t.funkReh_tarix)||'',
+      t.eh_tarix||'',dBw(t.funkReh_tarix,t.eh_tarix)||'',
+      t.basofis_tarix||'',dBw(t.eh_tarix,t.basofis_tarix)||'',
+      t.secChk_tarix||'',dBw(t.basofis_tarix,t.secChk_tarix)||'',
+      t.pep_tarix||'',dBw(t.secChk_tarix,t.pep_tarix)||'',
+      t.muqavile_tarix||'',dBw(t.pep_tarix,t.muqavile_tarix)||'',
+      t.ishe_baslama_tarix||'',
+      dAgo(t.muraciyet_tarix||t.tarix)||''
+    ])
+  ]),'Mərhələ İzləmə');
+  XLSX.writeFile(wb,`Transfer_Izleme_${new Date().toISOString().split('T')[0]}.xlsx`);
+}
+
+
+// ══ DATA IMPORT MODAL ══════════════════════════════════
+function openImportModal(){
+  showModal('📥 Data Yüklə / Import', `
+    <div style="background:#E3F2FD;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:#0D47A1">
+      <strong>Necə istifadə etməli:</strong><br>
+      1. Aşağıya məlumatları yapışdırın (kopyala-yapışdır, Excel, e-mail, istənilən format)<br>
+      2. Hansı bölməyə aid olduğunu seçin<br>
+      3. "Analiz et" düyməsinə basın — sistem avtomatik strukturlaşdırar<br>
+      4. Nəticəni yoxlayıb "Yadda saxla" basın
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Hədəf bölmə</label>
+        <select class="form-control" id="imp-target">
+          <option value="candidate">👥 Namizəd Pipeline</option>
+          <option value="task">✅ Task İzləmə</option>
+          <option value="transfer">🔄 Transfer</option>
+          <option value="vacancy">📋 Vakansiya</option>
+          <option value="onboarding">🎯 Onboarding</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Məlumatı bura yapışdırın</label>
+      <textarea class="form-control" id="imp-data" rows="8" placeholder="Buraya Excel sətirini, e-mail mətnini, və ya istənilən formatda məlumatı yapışdırın...
+
+Nümunə (namizəd üçün):
+Ad Soyad: Əli Hüseynov
+Vəzifə: Geofizika mütəxəssisi
+Funksiya: Subsurface
+Status: Müsahibə
+HRBP tarixi: 15.05.2026"></textarea>
+    </div>
+    <div id="imp-preview" style="display:none">
+      <div style="font-size:12px;font-weight:600;color:var(--dark);margin-bottom:8px">Analiz nəticəsi — yoxlayın:</div>
+      <div id="imp-preview-content"></div>
+    </div>
+    <div id="imp-status" style="font-size:12px;margin-top:8px"></div>
+  `, ()=>saveImportedData(), true);
+
+  // Override save button text
+  const saveBtn = ge('modal-save-btn');
+  saveBtn.textContent = 'Analiz et';
+  saveBtn.onclick = analyzeImportData;
+}
+
+let _importedData = null;
+
+function analyzeImportData(){
+  const raw = ge('imp-data').value.trim();
+  const target = ge('imp-target').value;
+  if(!raw){ge('imp-status').innerHTML='<span style="color:var(--red)">Məlumat boşdur</span>';return;}
+
+  ge('imp-status').innerHTML='<span style="color:#1565C0">⏳ Analiz edilir...</span>';
+
+  // Parse based on target type
+  let parsed = null;
+  try{
+    if(target==='candidate') parsed = parseImportCandidate(raw);
+    else if(target==='task') parsed = parseImportTask(raw);
+    else if(target==='transfer') parsed = parseImportTransfer(raw);
+    else if(target==='vacancy') parsed = parseImportVacancy(raw);
+    else if(target==='onboarding') parsed = parseImportOnboarding(raw);
+  }catch(e){ge('imp-status').innerHTML=`<span style="color:var(--red)">Xəta: ${e.message}</span>`;return;}
+
+  if(!parsed){ge('imp-status').innerHTML='<span style="color:var(--red)">Məlumat analiz edilə bilmədi</span>';return;}
+
+  _importedData = {type:target, data:parsed};
+  ge('imp-preview').style.display='';
+  ge('imp-preview-content').innerHTML = renderImportPreview(parsed, target);
+  ge('imp-status').innerHTML='<span style="color:#2E7D32">✓ Analiz tamamlandı. Yoxlayın və "Yadda saxla" basın.</span>';
+  ge('modal-save-btn').textContent = 'Yadda saxla';
+  ge('modal-save-btn').onclick = saveImportedData;
+}
+
+function extractField(text, ...keys){
+  for(const key of keys){
+    const rx = new RegExp(key+'\\s*[:\\-]\\s*(.+)', 'i');
+    const m = text.match(rx);
+    if(m) return m[1].trim();
+  }
+  return '';
+}
+function extractDate(text, ...keys){
+  const raw = extractField(text, ...keys);
+  if(!raw) return '';
+  // Convert dd.mm.yyyy or dd/mm/yyyy to yyyy-mm-dd
+  const m = raw.match(/(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})/);
+  if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  const m2 = raw.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if(m2) return raw.substring(0,10);
+  return raw;
+}
+function matchEnum(val, list){
+  if(!val) return '';
+  const vl = val.toLowerCase();
+  return list.find(x=>x.toLowerCase().includes(vl)||vl.includes(x.toLowerCase().substring(0,6)))||val;
+}
+
+function parseImportCandidate(text){
+  return {
+    id: nid(candidates),
+    ad: extractField(text,'ad soyad','ad','name','tam ad') || 'Naməlum',
+    vezife: extractField(text,'vəzifə','vezifə','vezife','position','title','vəzifə adı'),
+    funksiya: matchEnum(extractField(text,'funksiya','department','şöbə'), FUNKS) || 'Digər',
+    idarə: matchEnum(extractField(text,'idarə','idarə adı','cəmiyyət'), IDARELER) || 'SUOM',
+    kurator: matchEnum(extractField(text,'kurator'), KURATORLAR) || KURATORLAR[0],
+    mesul: matchEnum(extractField(text,'məsul','məsul şəxs'), MESUL) || MESUL[0],
+    kimdən: extractField(text,'kimdən','kimden','mənbə','referral'),
+    funksiyaRehberi: extractField(text,'funksiya rəhbəri','rəhbər','manager'),
+    status: matchEnum(extractField(text,'status'), ST_PIPE) || 'CV Göndərildi',
+    offer: extractField(text,'offer','maaş','əmək haqqı teklif','salary'),
+    hrbpDate: extractDate(text,'hrbp','hrbp tarixi','daxil olma','received'),
+    iqDate: extractDate(text,'işə qəbul','iq tarixi','talent'),
+    musibaheDate: extractDate(text,'müsahibə','interview'),
+    ehDate: extractDate(text,'əmək haqqı','salary tarixi'),
+    basofisDate: extractDate(text,'baş ofis','head office'),
+    secSenedDate: extractDate(text,'security sənəd','sec sənəd','sənəd göndər'),
+    secYoxlamaDate: extractDate(text,'security yoxlama','sec yoxlama'),
+    secNeticeDate: extractDate(text,'security nəticə','sec nəticə'),
+    pepFormaDate: extractDate(text,'pep forma','pep form'),
+    pepRehberDate: extractDate(text,'pep rəhbər','pep sign'),
+    pepBasoDate: extractDate(text,'pep baş ofis','pep head'),
+    isheBaslamaDate: extractDate(text,'işə başlama','start date','start'),
+    qeyd: extractField(text,'qeyd','note','izah','comment'),
+  };
+}
+
+function parseImportTask(text){
+  return {
+    id: nid(tasks),
+    movzu: matchEnum(extractField(text,'mövzu','movzu','category','type'), MOVZULAR) || 'Digər',
+    tapşırıq: extractField(text,'tapşırıq','task','tapşıriq','title','subject') || extractField(text,'description','izah') || text.split('\n')[0].substring(0,100),
+    kimden: extractField(text,'kimdən','kimden','from','göndərən'),
+    idarə: matchEnum(extractField(text,'idarə','department'), IDARELER) || 'SUOM',
+    funksiya: matchEnum(extractField(text,'funksiya'), FUNKS) || 'Digər',
+    funksiyaRehberi: extractField(text,'funksiya rəhbəri','rəhbər'),
+    kurator: matchEnum(extractField(text,'kurator'), KURATORLAR) || KURATORLAR[0],
+    mesul: matchEnum(extractField(text,'məsul','assigned'), MESUL) || MESUL[0],
+    prioritet: matchEnum(extractField(text,'prioritet','priority'), PRIOR) || 'Orta',
+    status: matchEnum(extractField(text,'status'), ST_TASK) || 'Açıq',
+    tarix: extractDate(text,'tarix','date','deadline','son tarix') || new Date().toISOString().split('T')[0],
+    layihe: matchEnum(extractField(text,'layihə','project'), LAYIHELER) || '—',
+    blok: extractField(text,'blok','blocker'),
+    mail: extractField(text,'mail','email'),
+    qeyd: extractField(text,'qeyd','note','izah'),
+  };
+}
+
+function parseImportTransfer(text){
+  return {
+    id: nid(transfers),
+    ad: extractField(text,'ad soyad','ad','name') || 'Naməlum',
+    muraciyet: matchEnum(extractField(text,'müraciət növü','növ','type'), TR_MUR) || TR_MUR[0],
+    fin: extractField(text,'fin','fin kod','id'),
+    tabel: extractField(text,'tabel','tabel nömrəsi'),
+    funksiya: matchEnum(extractField(text,'funksiya'), FUNKS) || 'Digər',
+    departament: extractField(text,'departament','department','şöbə'),
+    struktur: extractField(text,'struktur','structural'),
+    azneftVezife: extractField(text,'azneft vəzifəsi','cari vəzifə','current position'),
+    suomVezife: extractField(text,'suom vəzifəsi','yeni vəzifə','new position'),
+    kecidVezife: extractField(text,'keçid vəzifəsi','interim'),
+    currentKat: matchEnum(extractField(text,'cari kateqoriya','current category'), TR_KAT) || 'Specialist',
+    plannedKat: matchEnum(extractField(text,'planlaşdırılan kateqoriya','new category'), TR_KAT) || 'Specialist',
+    esaslandirma: extractField(text,'əsaslandırma','reason','justification','səbəb'),
+    kurator: matchEnum(extractField(text,'kurator'), KURATORLAR) || KURATORLAR[0],
+    hrbp: matchEnum(extractField(text,'hrbp'), MESUL) || MESUL[0],
+    mesul: matchEnum(extractField(text,'məsul'), MESUL) || MESUL[0],
+    status: matchEnum(extractField(text,'status'), TR_ST) || 'Gözləyir',
+    currentStage: 0,
+    tarix: extractDate(text,'başlama','start','tarix') || new Date().toISOString().split('T')[0],
+    muraciyet_tarix: extractDate(text,'müraciət tarixi','müraciət','başlama'),
+    hrbp_tarix: extractDate(text,'hrbp tarixi','hrbp'),
+    funkReh_tarix: extractDate(text,'funksiya rəhbəri tarixi','funk rəh'),
+    eh_tarix: extractDate(text,'əmək haqqı tarixi'),
+    basofis_tarix: extractDate(text,'baş ofis tarixi'),
+    secChk_tarix: extractDate(text,'security check tarixi','sec tarixi'),
+    pep_tarix: extractDate(text,'pep tarixi'),
+    muqavile_tarix: extractDate(text,'müqavilə tarixi'),
+    ishe_baslama_tarix: extractDate(text,'işə başlama tarixi','start date'),
+    deadline: extractDate(text,'deadline','son tarix'),
+    qeyd: extractField(text,'qeyd','note'),
+    tasks: [], log: [{tarix:new Date().toISOString().split('T')[0],kim:"HR",ne:"Import edildi",qeyd:''}],
+  };
+}
+
+function parseImportVacancy(text){
+  return {
+    id: nid(vacancies),
+    vezife: extractField(text,'vəzifə','position','title') || 'Naməlum',
+    funksiya: matchEnum(extractField(text,'funksiya'), FUNKS) || 'Digər',
+    idarə: matchEnum(extractField(text,'idarə'), IDARELER) || 'SUOM',
+    teleb: extractField(text,'tələb edən','requesting','manager','rəhbər'),
+    hrbpDate: extractDate(text,'hrbp','hrbp tarixi','received'),
+    dovr: extractField(text,'dövr','quarter','period'),
+    status: matchEnum(extractField(text,'status'), ST_VAC) || 'Aktiv',
+    deadline: extractDate(text,'deadline','son tarix'),
+    qeyd: extractField(text,'qeyd','note'),
+  };
+}
+
+function parseImportOnboarding(text){
+  return {
+    id: nid(onboardings),
+    ad: extractField(text,'ad soyad','ad','name') || 'Naməlum',
+    vezife: extractField(text,'vəzifə','position'),
+    start: extractDate(text,'başlama','start','işə başlama'),
+    stages: {},
+    status: matchEnum(extractField(text,'status'), ['Başlanmayıb','Natamam','Davam edir','Tamamlandı']) || 'Başlanmayıb',
+  };
+}
+
+function renderImportPreview(obj, type){
+  const fields = Object.entries(obj).filter(([k,v])=>v&&v!==''&&k!=='id'&&k!=='tasks'&&k!=='log'&&k!=='stages');
+  return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#F8F9FA;border-radius:8px;padding:10px">
+    ${fields.map(([k,v])=>`<div style="font-size:11px"><span style="color:#90A4AE;font-weight:600;text-transform:uppercase">${k}:</span> <span style="color:#37474F">${String(v).substring(0,50)}</span></div>`).join('')}
+  </div>
+  <div style="font-size:11px;color:#90A4AE;margin-top:6px">Daxil ediləcək sahələr göstərilir. Qalan sahələri sonra düzəliş modaldından tamamlaya bilərsiniz.</div>`;
+}
+
+function saveImportedData(){
+  if(!_importedData){closeModal();return;}
+  const {type, data} = _importedData;
+  if(type==='candidate'){candidates.push(data);saveAll();closeModal();navigateTo('pipeline');}
+  else if(type==='task'){tasks.push(data);saveAll();closeModal();navigateTo('tasks');}
+  else if(type==='transfer'){transfers.push(data);saveAll();closeModal();navigateTo('transfer');}
+  else if(type==='vacancy'){vacancies.push(data);saveAll();closeModal();navigateTo('vacancies');}
+  else if(type==='onboarding'){onboardings.push(data);saveAll();closeModal();navigateTo('onboarding');}
+  _importedData=null;
+  updateBadges();renderMiniDash(curPage);
+}
+// ══ END DATA IMPORT ══════════════════════════════════
+
+
+// Refresh from Supabase
+async function refreshFromSupabase(){
+  showLoading('Yenilənir...');
+  await loadAllFromSupabase();
+  hideLoading();
+  navigateTo(curPage);
+  renderMiniDash(curPage);
+  updateBadges();
+}
+function globalSearch(q){
+  if(!q||q.length<2)return;
+  const ql=q.toLowerCase();
+  const fc=candidates.find(c=>c.ad.toLowerCase().includes(ql));
+  if(fc){goPage('pipeline');setTimeout(()=>showCandDetail(fc.id),50);return;}
+  const ft=tasks.find(t=>t.tapşırıq.toLowerCase().includes(ql));
+  if(ft){goPage('tasks');setTimeout(()=>showTaskDetail(ft.id),50);return;}
+  const ftr=transfers.find(t=>t.ad.toLowerCase().includes(ql));
+  if(ftr){goPage('transfer');setTimeout(()=>showTransferDetail(ftr.id),50);}
+}
+
+// ══ MINI DASHBOARD — hər səhifəyə məxsus ══════════════
+function renderMiniDash(page){
+  const el=ge('mini-dash');
+  if(!el)return;
+  let items=[];
+  const sep={sep:1};
+  function mkItem(icon,val,label,c){return {icon,val,label,c};}
+
+  if(!page||page==='dashboard'){
+    const active=candidates.filter(c=>!['İşə Başladı','Rədd'].includes(c.status)).length;
+    const started=candidates.filter(c=>c.status==='İşə Başladı').length;
+    const critT=tasks.filter(t=>t.prioritet==='Kritik'&&t.status!=='Tamamlandı').length;
+    const openT=tasks.filter(t=>['Açıq','Davam edir'].includes(t.status)).length;
+    const openV=vacancies.filter(v=>!['Blok — Ştat Yox','Tamamlandı'].includes(v.status)).length;
+    const trAct=transfers.filter(t=>!['Tamamlandı','Rədd edildi'].includes(t.status)).length;
+    const onbP=onboardings.filter(o=>o.status!=='Tamamlandı').length;
+    items=[mkItem('👥',active,'Aktiv pipeline','#1565C0'),mkItem('🏁',started,'İşə başladı','#2E7D32'),sep,
+           mkItem('✅',openT,'Açıq task','#F57F17'),mkItem('🔴',critT,'Kritik task','#C62828'),sep,
+           mkItem('📋',openV,'Açıq vakansiya','#1E6091'),mkItem('🔄',trAct,'Aktiv transfer','#00695C'),mkItem('🎯',onbP,'Natamam onboarding','#6A1B9A')];
+  }
+  else if(page==='pipeline'){
+    const total=candidates.length;
+    const active=candidates.filter(c=>!['İşə Başladı','Rədd'].includes(c.status)).length;
+    const started=candidates.filter(c=>c.status==='İşə Başladı').length;
+    const sec=candidates.filter(c=>c.status.startsWith('Security')).length;
+    const pep=candidates.filter(c=>c.status.startsWith('PEP')).length;
+    const salary=candidates.filter(c=>c.status==='Salary Negotiation').length;
+    const mus=candidates.filter(c=>['Müsahibə','Müsahibə Planlanır','Müsahibə — Uğurlu'].includes(c.status)).length;
+    const red=candidates.filter(c=>c.status==='Rədd').length;
+    items=[mkItem('👥',total,'Ümumi','#1565C0'),mkItem('🔵',active,'Prosesdə','#1E6091'),mkItem('🏁',started,'İşə başladı','#2E7D32'),sep,
+           mkItem('🎤',mus,'Müsahibə','#F57F17'),mkItem('💰',salary,'Salary Neg.','#BF360C'),mkItem('🔒',sec,'Security Check','#6A1B9A'),mkItem('📋',pep,'PEP prosesi','#4A148C'),sep,
+           mkItem('❌',red,'Rədd','#90A4AE')];
+  }
+  else if(page==='vacancies'){
+    const total=vacancies.length;
+    const aktiv=vacancies.filter(v=>v.status.startsWith('Aktiv')||v.status==='LinkedIn-də').length;
+    const mus=vacancies.filter(v=>v.status==='Müsahibə Planlanır').length;
+    const salary=vacancies.filter(v=>v.status==='Salary Negotiation').length;
+    const sec=vacancies.filter(v=>v.status==='Security Check').length;
+    const pref=vacancies.filter(v=>v.status==='Preferred candidate').length;
+    const blok=vacancies.filter(v=>v.status==='Blok — Ştat Yox').length;
+    const done=vacancies.filter(v=>v.status==='Tamamlandı').length;
+    const late=vacancies.filter(v=>v.deadline&&dAgo(v.deadline)>0&&v.status!=='Tamamlandı').length;
+    items=[mkItem('📋',total,'Ümumi vakansiya','#1565C0'),mkItem('🟢',aktiv,'Aktiv/Elan','#2E7D32'),mkItem('🎤',mus,'Müsahibə','#F57F17'),sep,
+           mkItem('💰',salary,'Salary Neg.','#BF360C'),mkItem('🔒',sec,'Security Check','#6A1B9A'),mkItem('⭐',pref,'Preferred','#1E6091'),sep,
+           mkItem('🟢',done,'Tamamlandı','#2E7D32'),mkItem('🚫',blok,'Blok','#90A4AE'),mkItem('⚠',late,'Deadline keçib','#C62828')];
+  }
+  else if(page==='tasks'){
+    const total=tasks.length;
+    const open=tasks.filter(t=>t.status==='Açıq').length;
+    const cont=tasks.filter(t=>t.status==='Davam edir').length;
+    const done=tasks.filter(t=>t.status==='Tamamlandı').length;
+    const blok=tasks.filter(t=>t.status==='Blok').length;
+    const crit=tasks.filter(t=>t.prioritet==='Kritik'&&t.status!=='Tamamlandı').length;
+    const high=tasks.filter(t=>t.prioritet==='Yüksək'&&t.status!=='Tamamlandı').length;
+    const late=tasks.filter(t=>t.status!=='Tamamlandı'&&t.tarix&&dAgo(t.tarix)>14).length;
+    items=[mkItem('✅',total,'Ümumi task','#1565C0'),mkItem('🟡',open,'Açıq','#F57F17'),mkItem('🔵',cont,'Davam edir','#1E6091'),mkItem('🟢',done,'Tamamlandı','#2E7D32'),sep,
+           mkItem('🔴',crit,'Kritik','#C62828'),mkItem('🟠',high,'Yüksək','#BF360C'),mkItem('🚫',blok,'Blok','#90A4AE'),sep,
+           mkItem('⚠',late,'14+ gün açıq','#C62828')];
+  }
+  else if(page==='onboarding'){
+    const total=onboardings.length;
+    const notS=onboardings.filter(o=>o.status==='Başlanmayıb').length;
+    const inP=onboardings.filter(o=>o.status==='Davam edir').length;
+    const inc=onboardings.filter(o=>o.status==='Natamam').length;
+    const done=onboardings.filter(o=>o.status==='Tamamlandı').length;
+    const totalSt=Math.max(onboardings.length*obStages.length,1);
+    const compSt=onboardings.reduce((a,o)=>a+obStages.filter(s=>o.stages[s]==='✅').length,0);
+    const pct=Math.round(compSt/totalSt*100);
+    items=[mkItem('🎯',total,'Ümumi','#1565C0'),mkItem('🔴',notS,'Başlanmayıb','#C62828'),mkItem('🟡',inc,'Natamam','#F57F17'),mkItem('🔵',inP,'Davam edir','#1E6091'),mkItem('🟢',done,'Tamamlandı','#2E7D32'),sep,
+           mkItem('📊',pct+'%','Ümumi tamamlanma','#00695C')];
+  }
+  else if(page==='transfer'){
+    // Dinamik — workflowStages mərhələlərini sayır
+    const total=transfers.length;
+    const done=transfers.filter(t=>t.status==='Tamamlandı').length;
+    const late=transfers.filter(t=>t.deadline&&dAgo(t.deadline)>0&&!['Tamamlandı','Rədd edildi'].includes(t.status)).length;
+    // Cari mərhələ üzrə say
+    const stageItems=[];
+    const stageCount={};
+    transfers.filter(t=>!['Tamamlandı','Rədd edildi'].includes(t.status)).forEach(t=>{
+      const sn=workflowStages[t.currentStage]?.name||'—';
+      stageCount[sn]=(stageCount[sn]||0)+1;
+    });
+    // Top 4 aktiv mərhələ
+    const topStages=Object.entries(stageCount).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    const stColors=['#1565C0','#6A1B9A','#00695C','#F57F17'];
+    topStages.forEach(([name,cnt],i)=>{stageItems.push(mkItem('📌',cnt,name.substring(0,14),stColors[i%stColors.length]));});
+    items=[mkItem('🔄',total,'Ümumi','#1565C0'),mkItem('🔵',total-done,'Aktiv','#1E6091'),mkItem('🟢',done,'Tamamlandı','#2E7D32'),mkItem('⚠',late,'Gecikmiş','#C62828'),sep,
+           ...stageItems];
+  }
+  else if(page==='projects'){
+    const total=projects.length;
+    const cont=projects.filter(p=>p.status==='Davam edir').length;
+    const done=projects.filter(p=>p.status==='Tamamlandı').length;
+    const blok=projects.filter(p=>p.status==='Blok').length;
+    const avg=projects.length?Math.round(projects.reduce((a,p)=>a+(p.stages.length?p.doneCount/p.stages.length*100:0),0)/projects.length):0;
+    const ptOpen=tasks.filter(t=>t.layihe&&t.layihe!=='—'&&t.status!=='Tamamlandı').length;
+    items=[mkItem('🗂️',total,'Ümumi layihə','#1565C0'),mkItem('🔵',cont,'Davam edir','#1E6091'),mkItem('🟢',done,'Tamamlandı','#2E7D32'),mkItem('🚫',blok,'Blok','#90A4AE'),sep,
+           mkItem('📊',avg+'%','Orta progress','#00695C'),mkItem('✅',ptOpen,'Açıq layihə taskı','#F57F17')];
+  }
+  else if(page==='kurators'){
+    const total=tasks.length;
+    const done=tasks.filter(t=>t.status==='Tamamlandı').length;
+    const open=total-done;
+    const late=tasks.filter(t=>t.status!=='Tamamlandı'&&t.tarix&&dAgo(t.tarix)>14).length;
+    const kCount=new Set(tasks.map(t=>t.kurator)).size;
+    const pct=total?Math.round(done/total*100):0;
+    items=[mkItem('👤',kCount,'Kurator sayı','#1565C0'),mkItem('✅',total,'Ümumi task','#1E6091'),mkItem('🟢',done,'Tamamlandı','#2E7D32'),mkItem('🔵',open,'Açıq','#F57F17'),sep,
+           mkItem('⚠',late,'Gecikən','#C62828'),mkItem('📊',pct+'%','Tamamlanma','#00695C')];
+  }
+  else if(page==='funksiyalar'){
+    const fList=FUNKS.map(f=>({f,n:tasks.filter(t=>t.funksiya===f&&t.status!=='Tamamlandı').length})).filter(x=>x.n>0);
+    const topF=fList.sort((a,b)=>b.n-a.n)[0];
+    const crit=tasks.filter(t=>t.prioritet==='Kritik'&&t.status!=='Tamamlandı').length;
+    items=[mkItem('🏢',fList.length,'Aktiv funksiya','#1565C0'),mkItem('✅',tasks.filter(t=>t.status!=='Tamamlandı').length,'Açıq task','#F57F17'),mkItem('🔴',crit,'Kritik','#C62828'),sep,
+           topF?mkItem('📌',topF.n,'Ən çox: '+topF.f.substring(0,12),'#BF360C'):mkItem('—',0,'—','#ccc')];
+  }
+
+  el.innerHTML=items.map(it=>{
+    if(it.sep)return '<div style="width:1px;height:26px;background:var(--border);flex-shrink:0;margin:0 2px"></div>';
+    return `<div style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;background:#F8F9FA;border:1px solid var(--border);white-space:nowrap;flex-shrink:0">
+      <span style="font-size:12px">${it.icon}</span>
+      <span style="font-size:14px;font-weight:700;color:${it.c}">${it.val}</span>
+      <span style="font-size:10px;color:#90A4AE">${it.label}</span>
+    </div>`;
+  }).join('');
+}
+
+// navigateTo — sadə navigation funksiyası (recursive deyil)
+function navigateTo(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  const pg=ge('page-'+p);if(pg)pg.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(x=>{if(x.getAttribute('onclick')&&x.getAttribute('onclick').includes("'"+p+"'"))x.classList.add('active');});
+  ge('page-title').textContent=pgT[p]||p;
+  curPage=p;
+  const AL={pipeline:'+ Namizəd',vacancies:'+ Vakansiya',tasks:'+ Task',onboarding:'+ Onboarding',transfer:'+ Transfer'};
+  ge('add-btn').style.display=AL[p]?'':'none';
+  if(AL[p])ge('add-btn').textContent=AL[p];
+  renderMiniDash(p);
+  if(p==='dashboard')renderDashboard();
+  if(p==='pipeline'){ge('pipeline-detail').style.display='none';ge('pipeline-table-wrap').style.display='';renderPipeline();}
+  if(p==='vacancies'){ge('vacancy-detail').style.display='none';ge('vacancy-table-wrap').style.display='';renderVacanciesCore();}
+  if(p==='tasks'){ge('task-detail').style.display='none';ge('task-table-wrap').style.display='';renderTasksCore();}
+  if(p==='onboarding')renderOnboarding();
+  if(p==='transfer')renderTransferPage();
+  if(p==='projects')renderProjects();
+  if(p==='kurators')renderKurators();
+  if(p==='funksiyalar')renderFunksiyalar();
+  updateBadges();
+}
+
+// goPage indi navigateTo-nu çağırır — recursion yoxdur
+function goPage(p){navigateTo(p);}
+
+// ══ STAGE / FILTER MANAGEMENT ══════════════════════════
+let customMovzular=[...MOVZULAR];
+let customStatuses=[...ST_TASK];
+let customPrior=[...PRIOR];
+let vacStatusList=[...ST_VAC];
+
+function saveCustomFilters(){saveAll();}
+
+function manageFilterList(title,arr,onSave){
+  showModal(title,`
+    <div style="margin-bottom:8px;font-size:12px;color:#90A4AE">Siyahını düzəliş et, əlavə et və ya sil.</div>
+    <div id="mfl-list">${arr.map((s,i)=>`<div style="display:flex;gap:8px;margin-bottom:5px;align-items:center">
+      <span style="width:20px;text-align:center;font-size:11px;color:#90A4AE">${i+1}</span>
+      <input class="form-control mfl-inp" value="${s}" style="flex:1;font-size:12px">
+      <button class="btn btn-sm btn-danger" onclick="this.parentNode.remove()">🗑</button>
+    </div>`).join('')}</div>
+    <button class="btn" onclick="(function(){var d=document.createElement('div');d.style.cssText='display:flex;gap:8px;margin-bottom:5px;align-items:center';d.innerHTML='<span style=\\'width:20px\\'></span><input class=\\'form-control mfl-inp\\' value=\\'Yeni\\' style=\\'flex:1;font-size:12px\\'><button class=\\'btn btn-sm btn-danger\\' onclick=\\'this.parentNode.remove()\\'>🗑</button>';document.getElementById(\\'mfl-list\\').appendChild(d);d.querySelector(\\'input\\').focus();d.querySelector(\\'input\\').select();})()" style="margin-top:6px">+ Əlavə et</button>`,
+  ()=>{
+    const vals=[...document.querySelectorAll('.mfl-inp')].map(x=>x.value.trim()).filter(x=>x);
+    onSave(vals);closeModal();
+  });
+}
+
+function managePipelineStages(){
+  manageFilterList('Namizəd Pipeline Statusları',ST_PIPE,(vals)=>{
+    window.ST_PIPE=vals;saveAll();
+  });
+}
+function manageTaskFilters(){
+  showModal('Filter Siyahılarını İdarə et',`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--dark);margin-bottom:8px">Mövzular</div>
+        <div id="mfl-movzu">${customMovzular.map(s=>`<div style="display:flex;gap:6px;margin-bottom:5px"><input class="form-control mfl-m" value="${s}" style="flex:1;font-size:12px"><button class="btn btn-sm btn-danger" onclick="this.parentNode.remove()">🗑</button></div>`).join('')}</div>
+        <button class="btn btn-sm" onclick="addMflItem('mfl-movzu','mfl-m')">+ Əlavə et</button>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--dark);margin-bottom:8px">Statuslar</div>
+        <div id="mfl-status">${customStatuses.map(s=>`<div style="display:flex;gap:6px;margin-bottom:5px"><input class="form-control mfl-s" value="${s}" style="flex:1;font-size:12px"><button class="btn btn-sm btn-danger" onclick="this.parentNode.remove()">🗑</button></div>`).join('')}</div>
+        <button class="btn btn-sm" onclick="addMflItem('mfl-status','mfl-s')">+ Əlavə et</button>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--dark);margin-bottom:8px">Prioritetlər</div>
+        <div id="mfl-prior">${customPrior.map(s=>`<div style="display:flex;gap:6px;margin-bottom:5px"><input class="form-control mfl-p" value="${s}" style="flex:1;font-size:12px"><button class="btn btn-sm btn-danger" onclick="this.parentNode.remove()">🗑</button></div>`).join('')}</div>
+        <button class="btn btn-sm" onclick="addMflItem('mfl-prior','mfl-p')">+ Əlavə et</button>
+      </div>
+    </div>`,
+  ()=>{
+    customMovzular=[...document.querySelectorAll('.mfl-m')].map(x=>x.value.trim()).filter(x=>x);
+    customStatuses=[...document.querySelectorAll('.mfl-s')].map(x=>x.value.trim()).filter(x=>x);
+    customPrior=[...document.querySelectorAll('.mfl-p')].map(x=>x.value.trim()).filter(x=>x);
+    window.MOVZULAR=customMovzular;window.ST_TASK=customStatuses;window.PRIOR=customPrior;
+    saveCustomFilters();closeModal();renderTasksCore();
+  },true);
+}
+function addMflItem(listId,cls){
+  const d=document.createElement('div');
+  d.style.cssText='display:flex;gap:6px;margin-bottom:5px';
+  d.innerHTML=`<input class="form-control ${cls}" value="Yeni" style="flex:1;font-size:12px"><button class="btn btn-sm btn-danger" onclick="this.parentNode.remove()">🗑</button>`;
+  ge(listId).appendChild(d);d.querySelector('input').focus();d.querySelector('input').select();
+}
+function manageVacStages(){
+  manageFilterList('Vakansiya Statusları',vacStatusList,(vals)=>{
+    vacStatusList=vals;window.ST_VAC=vals;saveCustomFilters();renderVacanciesCore();
+  });
+}
+
+// ══ CORE RENDER FUNCTIONS (without recursion risk) ══════
+function renderVacanciesCore(){
+  const allS=[...new Set(vacancies.map(v=>v.status))].sort();
+  const allF=[...new Set(vacancies.map(v=>v.funksiya))].sort();
+  ge('vacancy-filters').innerHTML=`
+    <select onchange="vf.status=this.value;renderVacanciesCore()" class="form-control" style="height:30px;width:auto"><option value="">Bütün statuslar</option>${allS.map(s=>`<option value="${s}"${vf.status===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select onchange="vf.funksiya=this.value;renderVacanciesCore()" class="form-control" style="height:30px;width:auto"><option value="">Bütün funksiyalar</option>${allF.map(s=>`<option value="${s}"${vf.funksiya===s?' selected':''}>${s}</option>`).join('')}</select>
+    <button class="btn btn-primary" onclick="openVacModal()">+ Vakansiya</button>
+    <button class="btn btn-sm" onclick="manageVacStages()">⚙ Statuslar</button>`;
+  ge('vacancies-tbody').innerHTML=vacancies.filter(v=>(!vf.status||v.status===vf.status)&&(!vf.funksiya||v.funksiya===vf.funksiya)).map(v=>`
+    <tr class="clickable" onclick="showVacDetail(${v.id})">
+      <td style="font-weight:600">${v.vezife}</td><td style="font-size:11px">${v.funksiya}</td>
+      <td style="font-size:11px">${v.idarə}</td><td style="font-size:11px">${v.teleb}</td>
+      <td style="font-size:11px">${v.hrbpDate||'—'}</td><td style="font-size:11px">${v.dovr||'—'}</td>
+      <td>${pill(v.status)}</td><td style="font-size:11px">${v.deadline||'—'}</td>
+      <td>${fd(dAgo(v.hrbpDate))}</td>
+      <td onclick="event.stopPropagation()" style="white-space:nowrap">
+        <button class="btn btn-sm" onclick="openVacModal(${v.id})">✏</button>
+        <button class="btn btn-sm btn-danger" onclick="if(confirm('Silinsin?')){vacancies=vacancies.filter(x=>x.id!==${v.id});saveAll();renderVacanciesCore();renderMiniDash(curPage)}">🗑</button>
+      </td></tr>`).join('');
+}
+// Make renderVacancies call the core version
+function renderVacancies(){renderVacanciesCore();}
+
+function renderTasksCore(){
+  const allK=[...new Set(tasks.map(t=>t.kurator))].sort();
+  const mv=window.MOVZULAR||MOVZULAR;
+  const st=window.ST_TASK||ST_TASK;
+  const pr=window.PRIOR||PRIOR;
+  ge('task-filters').innerHTML=`
+    <select onchange="tf.movzu=this.value;renderTasksCore()" class="form-control" style="height:30px;width:auto"><option value="">Bütün mövzular</option>${mv.map(s=>`<option value="${s}"${tf.movzu===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select onchange="tf.status=this.value;renderTasksCore()" class="form-control" style="height:30px;width:auto"><option value="">Bütün statuslar</option>${st.map(s=>`<option value="${s}"${tf.status===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select onchange="tf.prioritet=this.value;renderTasksCore()" class="form-control" style="height:30px;width:auto"><option value="">Bütün prioritetlər</option>${pr.map(s=>`<option value="${s}"${tf.prioritet===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select onchange="tf.kurator=this.value;renderTasksCore()" class="form-control" style="height:30px;width:auto"><option value="">Bütün kuratorlar</option>${allK.map(s=>`<option value="${s}"${tf.kurator===s?' selected':''}>${s}</option>`).join('')}</select>
+    <select onchange="tf.layihe=this.value;renderTasksCore()" class="form-control" style="height:30px;width:auto"><option value="">Bütün layihələr</option>${LAYIHELER.map(s=>`<option value="${s}"${tf.layihe===s?' selected':''}>${s}</option>`).join('')}</select>
+    <button class="btn btn-primary" onclick="openTaskModal()">+ Task</button>
+    <button class="btn btn-sm" onclick="manageTaskFilters()">⚙ Filterlər</button>`;
+  const data=tasks.filter(t=>(!tf.movzu||t.movzu===tf.movzu)&&(!tf.status||t.status===tf.status)&&(!tf.prioritet||t.prioritet===tf.prioritet)&&(!tf.kurator||t.kurator===tf.kurator)&&(!tf.layihe||t.layihe===tf.layihe));
+  ge('tasks-tbody').innerHTML=data.map(t=>{
+    const isCrit=t.prioritet==='Kritik'&&t.status!=='Tamamlandı';
+    return `<tr class="clickable${isCrit?' crit':''}" onclick="showTaskDetail(${t.id})">
+      <td>${pill(t.movzu)}</td><td style="font-size:11px;max-width:150px" title="${t.tapşırıq}">${t.tapşırıq.substring(0,42)}${t.tapşırıq.length>42?'…':''}</td>
+      <td style="font-size:11px">${t.kimden}</td><td style="font-size:11px">${t.idarə||'—'}</td>
+      <td style="font-size:11px">${t.funksiyaRehberi||'—'}</td><td style="font-size:11px">${t.kurator}</td>
+      <td style="font-size:11px">${t.mesul||'—'}</td><td>${pill(t.prioritet)}</td><td>${pill(t.status)}</td>
+      <td>${t.status!=='Tamamlandı'?fd(dAgo(t.tarix)):'<span style="color:var(--green)">✓</span>'}</td>
+      <td style="font-size:10px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.layihe&&t.layihe!=='—'?t.layihe.substring(0,18)+'…':'—'}</td>
+      <td onclick="event.stopPropagation()" style="white-space:nowrap">
+        <button class="btn btn-sm" onclick="openTaskModal(${t.id})">✏</button>
+        <button class="btn btn-sm btn-danger" onclick="if(confirm('Silinsin?')){tasks=tasks.filter(x=>x.id!==${t.id});saveAll();renderTasksCore();renderDashboard();updateBadges();renderMiniDash(curPage)}">🗑</button>
+      </td></tr>`;
+  }).join('');
+}
+function renderTasks(){renderTasksCore();}
+
+// ══ INIT ══════════════════════════════════════════════
+// ══ INIT — Load from Supabase then render ══════════════
+(async function(){
+  await loadAllFromSupabase();
+  updateBadges();
+  renderMiniDash('dashboard');
+  renderDashboard();
+})();
+</script>
+</body>
+</html>
